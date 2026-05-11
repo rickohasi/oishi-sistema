@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oishi Salgados | Gestão Profissional</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #fcf8f3; }
+        .btn-oishi { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+        .tab-active { background-color: #fef2f2; color: #dc2626; border: 1px solid #fee2e2; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-6xl mx-auto">
+        <header class="bg-white rounded-[2rem] p-6 shadow-sm border border-red-50 flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
+            <h1 class="text-2xl font-black text-slate-900">🥟 Oishi Salgados</h1>
+            <nav class="flex gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-100">
+                <button onclick="mudarAba('insumos')" id="btnTabInsumos" class="px-6 py-2.5 rounded-lg font-bold text-sm tab-active">📦 Insumos</button>
+                <button onclick="mudarAba('fechamento')" id="btnTabFechamento" class="px-6 py-2.5 rounded-lg font-bold text-sm text-slate-400">💰 Caixa Expresso</button>
+            </nav>
+        </header>
+
+        <!-- ABA FECHAMENTO (FOCO FINANCEIRO) -->
+        <div id="abaFechamento" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- INSTRUÇÕES POP RESTAURADAS -->
+            <div class="lg:col-span-3 bg-white rounded-3xl p-6 shadow-sm border border-emerald-100 flex flex-col md:flex-row items-center gap-6 relative overflow-hidden">
+                <div class="flex-1">
+                    <h3 class="text-sm font-bold text-slate-800 mb-3 uppercase tracking-wider">💰 Guia de Fechamento Rápido:</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-600">
+                        <div class="bg-slate-50 p-3 rounded-xl border">1. Separe os meios de pagamento (Pix, Maquininha e Dinheiro).</div>
+                        <div class="bg-slate-50 p-3 rounded-xl border">2. Registre Sangrias (dinheiro que saiu para compras no dia).</div>
+                        <div class="bg-slate-50 p-3 rounded-xl border">3. O sistema dirá quanto deve ter de notas/moedas na gaveta.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-3xl p-6 shadow-sm border border-emerald-100 lg:sticky lg:top-8">
+                    <h2 id="formTitle" class="font-bold text-lg mb-4 text-emerald-700">🧾 Lançar Faturamento</h2>
+                    <form id="formFechamento" class="space-y-4">
+                        <input type="hidden" id="editId" value="">
+                        <input type="number" id="f_fundo" placeholder="Fundo de Troco" class="w-full bg-slate-50 border p-3 rounded-xl text-sm" required>
+                        <input type="number" id="f_sangria" placeholder="Despesas/Sangria" class="w-full bg-slate-50 border p-3 rounded-xl text-sm" required>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="number" id="f_din" placeholder="Dinheiro" class="bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-sm font-bold" required>
+                            <input type="number" id="f_pix" placeholder="PIX" class="bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-sm font-bold" required>
+                        </div>
+                        <input type="number" id="f_card" placeholder="Total Maquininha (Cartão)" class="w-full bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-sm font-bold" required>
+                        
+                        <button type="submit" id="btnSubmit" class="w-full bg-emerald-500 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-emerald-600 transition-all">SALVAR FECHAMENTO</button>
+                        <button type="button" id="btnCancel" onclick="cancelarEdicao()" class="hidden w-full bg-slate-100 text-slate-500 font-bold py-2 rounded-xl text-xs">CANCELAR EDIÇÃO</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+                    <h2 class="font-bold text-lg mb-4">📊 Histórico de Performance</h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead>
+                                <tr class="text-slate-400 uppercase text-[10px] border-b">
+                                    <th class="pb-2">Data</th>
+                                    <th class="pb-2 text-right">Total Global</th>
+                                    <th class="pb-2 text-right">Gaveta Esperada</th>
+                                    <th class="pb-2 text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="listaFechamentos"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let fechamentosGeral = [];
+
+        function mudarAba(aba) {
+            document.getElementById('abaFechamento').classList.toggle('hidden', aba !== 'fechamento');
+            if(aba === 'fechamento') carregarFechamentos();
+        }
+
+        async function carregarFechamentos() {
+            const res = await fetch('/api/fechamentos');
+            fechamentosGeral = await res.json();
+            const lista = document.getElementById('listaFechamentos');
+            lista.innerHTML = fechamentosGeral.map(f => `
+                <tr class="border-b hover:bg-slate-50">
+                    <td class="py-4 font-bold text-slate-700">${f.data}</td>
+                    <td class="text-right font-black text-emerald-600">R$ ${parseFloat(f.total_global).toFixed(2)}</td>
+                    <td class="text-right text-slate-500 font-semibold">R$ ${parseFloat(f.esperado_gaveta).toFixed(2)}</td>
+                    <td class="text-center">
+                        <button onclick="editarFechamento(${f.id})" class="text-blue-500 mr-2">✏️</button>
+                        <button onclick="excluirFechamento(${f.id})" class="text-red-500">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        document.getElementById('formFechamento').onsubmit = async function(e) {
+            e.preventDefault();
+            const payload = {
+                fundo_caixa: document.getElementById('f_fundo').value,
+                despesas_dia: document.getElementById('f_sangria').value,
+                caixa_dinheiro: document.getElementById('f_din').value,
+                caixa_pix: document.getElementById('f_pix').value,
+                caixa_cartao: document.getElementById('f_card').value
+            };
+            const id = document.getElementById('editId').value;
+            const url = id ? `/api/fechamentos/${id}` : '/api/fechamentos';
+            const method = id ? 'PUT' : 'POST';
+
+            await fetch(url, { method, headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+            cancelarEdicao();
+            carregarFechamentos();
+        };
+
+        function editarFechamento(id) {
+            const f = fechamentosGeral.find(item => item.id === id);
+            document.getElementById('editId').value = f.id;
+            document.getElementById('f_fundo').value = f.fundo_caixa;
+            document.getElementById('f_sangria').value = f.despesas_dia;
+            document.getElementById('f_din').value = f.caixa_dinheiro;
+            document.getElementById('f_pix').value = f.caixa_pix;
+            document.getElementById('f_card').value = f.caixa_cartao;
+            document.getElementById('formTitle').innerText = "✏️ Editar Lançamento";
+            document.getElementById('btnSubmit').innerText = "ATUALIZAR DADOS";
+            document.getElementById('btnSubmit').classList.replace('bg-emerald-500', 'bg-blue-500');
+            document.getElementById('btnCancel').classList.remove('hidden');
+        }
+
+        function cancelarEdicao() {
+            document.getElementById('formFechamento').reset();
+            document.getElementById('editId').value = "";
+            document.getElementById('formTitle').innerText = "🧾 Lançar Faturamento";
+            document.getElementById('btnSubmit').innerText = "SALVAR FECHAMENTO";
+            document.getElementById('btnSubmit').classList.replace('bg-blue-500', 'bg-emerald-500');
+            document.getElementById('btnCancel').classList.add('hidden');
+        }
+
+        async function excluirFechamento(id) {
+            if(confirm("Excluir este relatório financeiro?")) {
+                await fetch(`/api/fechamentos/${id}`, { method: 'DELETE' });
+                carregarFechamentos();
+            }
+        }
+    </script>
+</body>
+</html>
