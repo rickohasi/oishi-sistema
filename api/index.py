@@ -57,20 +57,36 @@ def handle_insumos():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/api/insumos/<int:id>', methods=['DELETE'])
-def delete_insumo(id):
+
+@app.route('/api/insumos/<int:id>', methods=['PUT', 'DELETE'])
+def update_insumo(id):
     token = get_token()
-    if not token: return jsonify({"error": "Não autorizado"}), 401
+    if not token:
+        return jsonify({"error": "Não autorizado"}), 401
     
     sb = get_supabase_client(token)
-    sb.table('insumos').delete().eq('id', id).execute()
-    return jsonify({"success": True})
+
+    if request.method == 'PUT':
+        data = request.json
+
+        preco = float(data.get('preco', 0))
+        qtd = float(data.get('quantidade', 0))
+        data['custo_unitario'] = preco / qtd if qtd > 0 else 0
+
+        sb.table('insumos').update(data).eq('id', id).execute()
+        return jsonify({"success": True})
+
+    elif request.method == 'DELETE':
+        sb.table('insumos').delete().eq('id', id).execute()
+        return jsonify({"success": True})
+
 
 # --- API RECEITAS ---
 @app.route('/api/receitas', methods=['GET', 'POST'])
 def handle_receitas():
     token = get_token()
-    if not token: return jsonify({"error": "Não autorizado"}), 401
+    if not token:
+        return jsonify({"error": "Não autorizado"}), 401
     
     sb = get_supabase_client(token)
     try:
@@ -85,18 +101,30 @@ def handle_receitas():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/api/receitas/<int:id>', methods=['DELETE'])
-def delete_receita(id):
+
+@app.route('/api/receitas/<int:id>', methods=['PUT', 'DELETE'])
+def update_receita(id):
     token = get_token()
+    if not token:
+        return jsonify({"error": "Não autorizado"}), 401
+    
     sb = get_supabase_client(token)
-    sb.table('receitas').delete().eq('id', id).execute()
-    return jsonify({"success": True})
+
+    if request.method == 'PUT':
+        sb.table('receitas').update(request.json).eq('id', id).execute()
+        return jsonify({"success": True})
+
+    elif request.method == 'DELETE':
+        sb.table('receitas').delete().eq('id', id).execute()
+        return jsonify({"success": True})
+
 
 # --- API FECHAMENTOS (CAIXA EXPRESSO) ---
 @app.route('/api/fechamentos', methods=['GET', 'POST'])
 def handle_fechamentos():
     token = get_token()
-    if not token: return jsonify({"error": "Não autorizado"}), 401
+    if not token:
+        return jsonify({"error": "Não autorizado"}), 401
     
     sb = get_supabase_client(token)
     try:
