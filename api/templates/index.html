@@ -119,8 +119,8 @@
     <script>
         // CONFIGURAÇÃO SUPABASE FRONTEND
         // Estes dados são pegos da Vercel mas injetados aqui para o JS usar
-        const SUPABASE_URL = "SUA_URL_AQUI"; // A Vercel vai cuidar disso, mas o JS precisa do valor
-        const SUPABASE_KEY = "SUA_KEY_AQUI"; // Use a anon key aqui
+        const SUPABASE_URL = "https://ogsdzmyhchzyrjrzezod.supabase.co/rest/v1/"; // A Vercel vai cuidar disso, mas o JS precisa do valor
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9nc2R6bXloY2h6eXJqcnplem9kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxOTM1MDcsImV4cCI6MjA5Mzc2OTUwN30.MC4_iugS8A8SI_dDH2FGi2kGrg5-HqQo1NYVtRD1XEQ"; // Use a anon key aqui
         const _supabase = supabase.createClient('https://ogsdzmyhchzyrjrzezod.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9nc2R6bXloY2h6eXJqcnplem9kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTU0Mzg2NTQsImV4cCI6MjAzMTAxNDY1NH0.G7W1uXU88X_QhP_j7Y0X8X_QhP_j7Y0X8X_QhP_j7Y0');
 
         let session = null;
