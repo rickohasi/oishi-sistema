@@ -201,11 +201,14 @@
         // 1. GESTÃO DE SESSÃO E LOGIN
         document.getElementById('loginForm').onsubmit = async (e) => {
             e.preventDefault();
+            const emailValue = document.getElementById('l_email').value;
+            const passValue = document.getElementById('l_pass').value;
             const { data, error } = await _supabase.auth.signInWithPassword({
-                email: l_email.value,
-                password: l_pass.value
+                email: emailValue,
+                password: passValue
             });
             if (error) {
+                const loginError = document.getElementById('loginError');
                 loginError.innerText = "Credenciais incorretas!";
                 loginError.classList.remove('hidden');
             } else {
@@ -232,8 +235,8 @@
             const { data } = await _supabase.auth.getSession();
             if (data.session) {
                 localStorage.setItem('oishi_token', data.session.access_token);
-                loginOverlay.classList.add('hidden');
-                mainContent.classList.remove('hidden');
+                document.getElementById('loginOverlay').classList.add('hidden');
+                document.getElementById('mainContent').classList.remove('hidden');
                 carregarInsumos();
             }
         })();
@@ -257,7 +260,7 @@
         async function carregarInsumos() {
             const res = await fetchAuth('/api/insumos');
             insumosGlobais = await res.json();
-            listaInsumos.innerHTML = insumosGlobais.map(i => `
+            document.getElementById('listaInsumos').innerHTML = insumosGlobais.map(i => `
                 <tr class="border-b hover:bg-slate-50">
                     <td class="py-3 font-bold">${i.nome} <span class="text-[10px] font-normal">(${i.quantidade}${i.unidade})</span></td>
                     <td class="text-right">R$ ${parseFloat(i.preco).toFixed(2)}</td>
@@ -268,41 +271,95 @@
             atualizarSelectInsumos();
         }
 
-        formInsumo.onsubmit = async (e) => {
+        document.getElementById('formInsumo').onsubmit = async (e) => {
             e.preventDefault();
-            const payload = { nome: i_nome.value, preco: i_preco.value, quantidade: i_qtd.value, unidade: i_unidade.value };
+            const payload = { 
+                nome: document.getElementById('i_nome').value, 
+                preco: document.getElementById('i_preco').value, 
+                quantidade: document.getElementById('i_qtd').value, 
+                unidade: document.getElementById('i_unidade').value 
+            };
             await fetchAuth('/api/insumos', { method: 'POST', body: JSON.stringify(payload) });
-            formInsumo.reset(); carregarInsumos();
+            document.getElementById('formInsumo').reset(); 
+            carregarInsumos();
         };
 
-        async function excluirInsumo(id) { if(confirm("Excluir?")) { await fetchAuth(`/api/insumos/${id}`, { method: 'DELETE' }); carregarInsumos(); } }
+        async function excluirInsumo(id) { 
+            if(confirm("Excluir?")) { 
+                await fetchAuth(`/api/insumos/${id}`, { method: 'DELETE' }); 
+                carregarInsumos(); 
+            } 
+        }
 
-        // 4. LOGICA RECEITAS
+        // 4. LOGICA RECEITAS (CORRIGIDA)
         function atualizarSelectInsumos() {
             const s = document.getElementById('r_insumo_select');
             if(s) s.innerHTML = '<option value="">Selecionar...</option>' + insumosGlobais.map(i => `<option value="${i.id}">${i.nome}</option>`).join('');
         }
 
         function adicionarInsumoNaReceita() {
-            const s = r_insumo_select; const q = r_insumo_qtd;
-            if(!s.value || !q.value) return;
-            const ins = insumosGlobais.find(i => i.id == s.value);
-            insumosReceitaTemp.push({ id_insumo: ins.id, nome: ins.nome, quantidade: q.value, unidade: ins.unidade, custo: ins.custo_unitario * q.value });
-            listaInsumosReceitaAtual.innerHTML = insumosReceitaTemp.map(item => `<li>${item.nome}: R$ ${item.custo.toFixed(2)}</li>`).join('');
+            const select = document.getElementById('r_insumo_select');
+            const qtd = document.getElementById('r_insumo_qtd');
+            if(!select.value || !qtd.value) return;
+            const ins = insumosGlobais.find(i => i.id == select.value);
+            
+            insumosReceitaTemp.push({ 
+                id_insumo: ins.id, 
+                nome: ins.nome, 
+                quantidade: parseFloat(qtd.value), 
+                unidade: ins.unidade, 
+                custo: ins.custo_unitario * parseFloat(qtd.value) 
+            });
+            
+            atualizarListaInsumosReceita();
+            qtd.value = '';
         }
 
-        formReceita.onsubmit = async (e) => {
+        function removerInsumoReceita(index) {
+            insumosReceitaTemp.splice(index, 1);
+            atualizarListaInsumosReceita();
+        }
+
+        function atualizarListaInsumosReceita() {
+            document.getElementById('listaInsumosReceitaAtual').innerHTML = insumosReceitaTemp.map((item, index) => `
+                <li class="flex justify-between items-center border-b pb-1">
+                    <span>${item.quantidade}${item.unidade || ''} - ${item.nome}</span>
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold text-red-500">R$ ${item.custo.toFixed(2)}</span>
+                        <button type="button" onclick="removerInsumoReceita(${index})" class="text-red-400 font-bold">X</button>
+                    </div>
+                </li>
+            `).join('');
+        }
+
+        document.getElementById('formReceita').onsubmit = async (e) => {
             e.preventDefault();
             const total = insumosReceitaTemp.reduce((a, b) => a + b.custo, 0);
-            const payload = { nome: r_nome.value, rendimento: r_rendimento.value, custo_total: total, custo_unidade: total/r_rendimento.value, ingredientes: JSON.stringify(insumosReceitaTemp) };
-            await fetchAuth('/api/receitas', { method: 'POST', body: JSON.stringify(payload) });
-            formReceita.reset(); insumosReceitaTemp = []; listaInsumosReceitaAtual.innerHTML = ''; carregarReceitas();
+            const rendimentoVal = parseFloat(document.getElementById('r_rendimento').value);
+            
+            const payload = { 
+                nome: document.getElementById('r_nome').value, 
+                rendimento: rendimentoVal, 
+                custo_total: total, 
+                custo_unidade: total / (rendimentoVal || 1), 
+                ingredientes: JSON.stringify(insumosReceitaTemp) 
+            };
+            
+            const res = await fetchAuth('/api/receitas', { method: 'POST', body: JSON.stringify(payload) });
+            if (res.ok) {
+                document.getElementById('formReceita').reset(); 
+                insumosReceitaTemp = []; 
+                document.getElementById('listaInsumosReceitaAtual').innerHTML = ''; 
+                carregarReceitas();
+            } else {
+                alert("Erro ao salvar a receita. Verifique se os dados estão corretos.");
+            }
         };
 
         async function carregarReceitas() {
             const res = await fetchAuth('/api/receitas');
             const dados = await res.json();
-            listaReceitas.innerHTML = dados.map(r => `
+            document.getElementById('listaReceitas').innerHTML = dados.map(r => `
                 <tr class="border-b">
                     <td class="py-3 font-bold">${r.nome}</td>
                     <td class="text-right text-slate-500">${r.rendimento} un</td>
@@ -313,51 +370,92 @@
             `).join('');
         }
 
-        async function excluirReceita(id) { if(confirm("Excluir?")) { await fetchAuth(`/api/receitas/${id}`, { method: 'DELETE' }); carregarReceitas(); } }
+        async function excluirReceita(id) { 
+            if(confirm("Excluir?")) { 
+                await fetchAuth(`/api/receitas/${id}`, { method: 'DELETE' }); 
+                carregarReceitas(); 
+            } 
+        }
 
-        // 5. LOGICA CAIXA
+        // 5. LOGICA CAIXA (CORRIGIDA DATA E HORA)
         async function carregarFechamentos() {
             const res = await fetchAuth('/api/fechamentos');
             fechamentosGeral = await res.json();
-            listaFechamentos.innerHTML = fechamentosGeral.map(f => `
-                <tr class="border-b hover:bg-slate-50">
-                    <td class="py-4 font-bold text-slate-700">${f.data ? f.data.split('T')[0] : ''}</td>
-                    <td class="text-right font-black text-emerald-600">R$ ${f.total_global.toFixed(2)}</td>
-                    <td class="text-right font-semibold text-slate-500">R$ ${f.esperado_gaveta.toFixed(2)}</td>
-                    <td class="text-center">
-                        <button onclick="editarFechamento(${f.id})" class="text-blue-500 mr-2">✏️</button>
-                        <button onclick="excluirFechamento(${f.id})" class="text-red-500">🗑️</button>
-                    </td>
-                </tr>
-            `).join('');
+            document.getElementById('listaFechamentos').innerHTML = fechamentosGeral.map(f => {
+                let dataFormatada = '';
+                if (f.data) {
+                    const objData = new Date(f.data);
+                    dataFormatada = objData.toLocaleDateString('pt-BR') + ' às ' + objData.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+                }
+                
+                return `
+                    <tr class="border-b hover:bg-slate-50">
+                        <td class="py-4 font-bold text-slate-700">${dataFormatada}</td>
+                        <td class="text-right font-black text-emerald-600">R$ ${parseFloat(f.total_global).toFixed(2)}</td>
+                        <td class="text-right font-semibold text-slate-500">R$ ${parseFloat(f.esperado_gaveta).toFixed(2)}</td>
+                        <td class="text-center">
+                            <button onclick="editarFechamento(${f.id})" class="text-blue-500 mr-2">✏️</button>
+                            <button onclick="excluirFechamento(${f.id})" class="text-red-500">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
         }
 
-        formFechamento.onsubmit = async (e) => {
+        document.getElementById('formFechamento').onsubmit = async (e) => {
             e.preventDefault();
-            const payload = { fundo_caixa: f_fundo.value, despesas_dia: f_sangria.value, caixa_dinheiro: f_din.value, caixa_pix: f_pix.value, caixa_cartao: f_card.value };
-            const id = f_editId.value;
+            const payload = { 
+                fundo_caixa: document.getElementById('f_fundo').value, 
+                despesas_dia: document.getElementById('f_sangria').value, 
+                caixa_dinheiro: document.getElementById('f_din').value, 
+                caixa_pix: document.getElementById('f_pix').value, 
+                caixa_cartao: document.getElementById('f_card').value 
+            };
+            const id = document.getElementById('f_editId').value;
             await fetchAuth(id ? `/api/fechamentos/${id}` : '/api/fechamentos', { method: id ? 'PUT' : 'POST', body: JSON.stringify(payload) });
-            cancelarEdicaoFechamento(); carregarFechamentos();
+            cancelarEdicaoFechamento(); 
+            carregarFechamentos();
         };
 
         function editarFechamento(id) {
             const f = fechamentosGeral.find(item => item.id === id);
-            f_editId.value = f.id; f_fundo.value = f.fundo_caixa; f_sangria.value = f.despesas_dia; f_din.value = f.caixa_dinheiro; f_pix.value = f.caixa_pix; f_card.value = f.caixa_cartao;
-            formTitleFechamento.innerText = "✏️ Editar Dados";
-            btnSubmitFechamento.innerText = "ATUALIZAR";
-            btnSubmitFechamento.classList.replace('bg-emerald-500', 'bg-blue-500');
-            btnCancelFechamento.classList.remove('hidden');
+            document.getElementById('f_editId').value = f.id; 
+            document.getElementById('f_fundo').value = f.fundo_caixa; 
+            document.getElementById('f_sangria').value = f.despesas_dia; 
+            document.getElementById('f_din').value = f.caixa_dinheiro; 
+            document.getElementById('f_pix').value = f.caixa_pix; 
+            document.getElementById('f_card').value = f.caixa_cartao;
+            
+            const formTitle = document.getElementById('formTitleFechamento');
+            const btnSubmit = document.getElementById('btnSubmitFechamento');
+            const btnCancel = document.getElementById('btnCancelFechamento');
+
+            formTitle.innerText = "✏️ Editar Dados";
+            btnSubmit.innerText = "ATUALIZAR";
+            btnSubmit.classList.replace('bg-emerald-500', 'bg-blue-500');
+            btnCancel.classList.remove('hidden');
         }
 
         function cancelarEdicaoFechamento() {
-            formFechamento.reset(); f_editId.value = "";
-            formTitleFechamento.innerText = "🧾 Lançar Faturamento";
-            btnSubmitFechamento.innerText = "SALVAR FECHAMENTO";
-            btnSubmitFechamento.classList.replace('bg-blue-500', 'bg-emerald-500');
-            btnCancelFechamento.classList.add('hidden');
+            document.getElementById('formFechamento').reset(); 
+            document.getElementById('f_editId').value = "";
+            
+            const formTitle = document.getElementById('formTitleFechamento');
+            const btnSubmit = document.getElementById('btnSubmitFechamento');
+            const btnCancel = document.getElementById('btnCancelFechamento');
+
+            formTitle.innerText = "🧾 Lançar Faturamento";
+            btnSubmit.innerText = "SALVAR FECHAMENTO";
+            btnSubmit.classList.replace('bg-blue-500', 'bg-emerald-500');
+            btnCancel.classList.add('hidden');
         }
 
-        async function excluirFechamento(id) { if(confirm("Excluir?")) { await fetchAuth(`/api/fechamentos/${id}`, { method: 'DELETE' }); carregarFechamentos(); } }
+        async function excluirFechamento(id) { 
+            if(confirm("Excluir?")) { 
+                await fetchAuth(`/api/fechamentos/${id}`, { method: 'DELETE' }); 
+                carregarFechamentos(); 
+            } 
+        }
     </script>
 </body>
 </html>
