@@ -174,7 +174,7 @@
                     <table class="w-full text-left text-sm">
                         <thead>
                             <tr class="text-slate-400 uppercase text-[10px] border-b">
-                                <th class="pb-2">Data</th>
+                                <th class="pb-2">Data e Hora</th>
                                 <th class="pb-2 text-right">Total Global</th>
                                 <th class="pb-2 text-right">Gaveta Esperada</th>
                                 <th class="pb-2 text-center">Ações</th>
@@ -201,16 +201,13 @@
         // 1. GESTÃO DE SESSÃO E LOGIN
         document.getElementById('loginForm').onsubmit = async (e) => {
             e.preventDefault();
-            const emailValue = document.getElementById('l_email').value;
-            const passValue = document.getElementById('l_pass').value;
             const { data, error } = await _supabase.auth.signInWithPassword({
-                email: emailValue,
-                password: passValue
+                email: document.getElementById('l_email').value,
+                password: document.getElementById('l_pass').value
             });
             if (error) {
-                const loginError = document.getElementById('loginError');
-                loginError.innerText = "Credenciais incorretas!";
-                loginError.classList.remove('hidden');
+                document.getElementById('loginError').innerText = "Credenciais incorretas!";
+                document.getElementById('loginError').classList.remove('hidden');
             } else {
                 localStorage.setItem('oishi_token', data.session.access_token);
                 location.reload();
@@ -291,45 +288,48 @@
             } 
         }
 
-        // 4. LOGICA RECEITAS (CORRIGIDA)
+        // 4. LOGICA RECEITAS
         function atualizarSelectInsumos() {
             const s = document.getElementById('r_insumo_select');
             if(s) s.innerHTML = '<option value="">Selecionar...</option>' + insumosGlobais.map(i => `<option value="${i.id}">${i.nome}</option>`).join('');
         }
 
         function adicionarInsumoNaReceita() {
-            const select = document.getElementById('r_insumo_select');
-            const qtd = document.getElementById('r_insumo_qtd');
-            if(!select.value || !qtd.value) return;
-            const ins = insumosGlobais.find(i => i.id == select.value);
+            const s = document.getElementById('r_insumo_select'); 
+            const q = document.getElementById('r_insumo_qtd');
+            if(!s.value || !q.value) return;
+            const ins = insumosGlobais.find(i => i.id == s.value);
             
             insumosReceitaTemp.push({ 
                 id_insumo: ins.id, 
                 nome: ins.nome, 
-                quantidade: parseFloat(qtd.value), 
+                quantidade: parseFloat(q.value), 
                 unidade: ins.unidade, 
-                custo: ins.custo_unitario * parseFloat(qtd.value) 
+                custo: ins.custo_unitario * parseFloat(q.value) 
             });
             
-            atualizarListaInsumosReceita();
-            qtd.value = '';
+            document.getElementById('listaInsumosReceitaAtual').innerHTML = insumosReceitaTemp.map((item, index) => `
+                <li class="flex justify-between items-center border-b pb-1 mt-1">
+                    <span>${item.quantidade}${item.unidade} - ${item.nome}</span>
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold text-red-500">R$ ${item.custo.toFixed(2)}</span>
+                        <button type="button" onclick="removerInsumoReceita(${index})" class="text-red-400 font-bold ml-2">X</button>
+                    </div>
+                </li>`).join('');
+            
+            q.value = ''; // Limpa o campo de quantidade
         }
 
         function removerInsumoReceita(index) {
             insumosReceitaTemp.splice(index, 1);
-            atualizarListaInsumosReceita();
-        }
-
-        function atualizarListaInsumosReceita() {
-            document.getElementById('listaInsumosReceitaAtual').innerHTML = insumosReceitaTemp.map((item, index) => `
-                <li class="flex justify-between items-center border-b pb-1">
-                    <span>${item.quantidade}${item.unidade || ''} - ${item.nome}</span>
+            document.getElementById('listaInsumosReceitaAtual').innerHTML = insumosReceitaTemp.map((item, idx) => `
+                <li class="flex justify-between items-center border-b pb-1 mt-1">
+                    <span>${item.quantidade}${item.unidade} - ${item.nome}</span>
                     <div class="flex items-center gap-2">
                         <span class="font-bold text-red-500">R$ ${item.custo.toFixed(2)}</span>
-                        <button type="button" onclick="removerInsumoReceita(${index})" class="text-red-400 font-bold">X</button>
+                        <button type="button" onclick="removerInsumoReceita(${idx})" class="text-red-400 font-bold ml-2">X</button>
                     </div>
-                </li>
-            `).join('');
+                </li>`).join('');
         }
 
         document.getElementById('formReceita').onsubmit = async (e) => {
@@ -342,7 +342,8 @@
                 rendimento: rendimentoVal, 
                 custo_total: total, 
                 custo_unidade: total / (rendimentoVal || 1), 
-                ingredientes: JSON.stringify(insumosReceitaTemp) 
+                // CORREÇÃO AQUI: Enviando a lista pura em vez de string para ser aceito pelo JSONB do Supabase
+                ingredientes: insumosReceitaTemp 
             };
             
             const res = await fetchAuth('/api/receitas', { method: 'POST', body: JSON.stringify(payload) });
@@ -352,7 +353,8 @@
                 document.getElementById('listaInsumosReceitaAtual').innerHTML = ''; 
                 carregarReceitas();
             } else {
-                alert("Erro ao salvar a receita. Verifique se os dados estão corretos.");
+                const erroData = await res.json();
+                alert("Erro ao salvar a receita. Detalhes: " + (erroData.error || "Falha na conexão com o banco."));
             }
         };
 
@@ -377,27 +379,30 @@
             } 
         }
 
-        // 5. LOGICA CAIXA (CORRIGIDA DATA E HORA)
+        // 5. LOGICA CAIXA
         async function carregarFechamentos() {
             const res = await fetchAuth('/api/fechamentos');
             fechamentosGeral = await res.json();
             document.getElementById('listaFechamentos').innerHTML = fechamentosGeral.map(f => {
-                let dataFormatada = '';
-                if (f.data) {
-                    const objData = new Date(f.data);
+                // CORREÇÃO AQUI: Puxa a data nativa do banco de dados (created_at ou data) e formata com Hora
+                let dataFormatada = 'Sem Data';
+                let dataCrua = f.data || f.created_at; 
+                
+                if (dataCrua) {
+                    const objData = new Date(dataCrua);
                     dataFormatada = objData.toLocaleDateString('pt-BR') + ' às ' + objData.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
                 }
-                
+
                 return `
-                    <tr class="border-b hover:bg-slate-50">
-                        <td class="py-4 font-bold text-slate-700">${dataFormatada}</td>
-                        <td class="text-right font-black text-emerald-600">R$ ${parseFloat(f.total_global).toFixed(2)}</td>
-                        <td class="text-right font-semibold text-slate-500">R$ ${parseFloat(f.esperado_gaveta).toFixed(2)}</td>
-                        <td class="text-center">
-                            <button onclick="editarFechamento(${f.id})" class="text-blue-500 mr-2">✏️</button>
-                            <button onclick="excluirFechamento(${f.id})" class="text-red-500">🗑️</button>
-                        </td>
-                    </tr>
+                <tr class="border-b hover:bg-slate-50">
+                    <td class="py-4 font-bold text-slate-700 whitespace-nowrap">${dataFormatada}</td>
+                    <td class="text-right font-black text-emerald-600">R$ ${parseFloat(f.total_global).toFixed(2)}</td>
+                    <td class="text-right font-semibold text-slate-500">R$ ${parseFloat(f.esperado_gaveta).toFixed(2)}</td>
+                    <td class="text-center">
+                        <button onclick="editarFechamento(${f.id})" class="text-blue-500 mr-2">✏️</button>
+                        <button onclick="excluirFechamento(${f.id})" class="text-red-500">🗑️</button>
+                    </td>
+                </tr>
                 `;
             }).join('');
         }
@@ -426,28 +431,20 @@
             document.getElementById('f_pix').value = f.caixa_pix; 
             document.getElementById('f_card').value = f.caixa_cartao;
             
-            const formTitle = document.getElementById('formTitleFechamento');
-            const btnSubmit = document.getElementById('btnSubmitFechamento');
-            const btnCancel = document.getElementById('btnCancelFechamento');
-
-            formTitle.innerText = "✏️ Editar Dados";
-            btnSubmit.innerText = "ATUALIZAR";
-            btnSubmit.classList.replace('bg-emerald-500', 'bg-blue-500');
-            btnCancel.classList.remove('hidden');
+            document.getElementById('formTitleFechamento').innerText = "✏️ Editar Dados";
+            document.getElementById('btnSubmitFechamento').innerText = "ATUALIZAR";
+            document.getElementById('btnSubmitFechamento').classList.replace('bg-emerald-500', 'bg-blue-500');
+            document.getElementById('btnCancelFechamento').classList.remove('hidden');
         }
 
         function cancelarEdicaoFechamento() {
             document.getElementById('formFechamento').reset(); 
             document.getElementById('f_editId').value = "";
             
-            const formTitle = document.getElementById('formTitleFechamento');
-            const btnSubmit = document.getElementById('btnSubmitFechamento');
-            const btnCancel = document.getElementById('btnCancelFechamento');
-
-            formTitle.innerText = "🧾 Lançar Faturamento";
-            btnSubmit.innerText = "SALVAR FECHAMENTO";
-            btnSubmit.classList.replace('bg-blue-500', 'bg-emerald-500');
-            btnCancel.classList.add('hidden');
+            document.getElementById('formTitleFechamento').innerText = "🧾 Lançar Faturamento";
+            document.getElementById('btnSubmitFechamento').innerText = "SALVAR FECHAMENTO";
+            document.getElementById('btnSubmitFechamento').classList.replace('bg-blue-500', 'bg-emerald-500');
+            document.getElementById('btnCancelFechamento').classList.add('hidden');
         }
 
         async function excluirFechamento(id) { 
