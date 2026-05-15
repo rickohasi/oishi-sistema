@@ -37,7 +37,7 @@
         <header class="bg-white rounded-[2rem] p-6 shadow-sm border border-red-50 flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
             <div class="flex items-center gap-3">
                 <h1 class="text-2xl font-black text-slate-900">🥟 Oishi Salgados</h1>
-                <button onclick="logout()" class="text-[10px] bg-slate-100 px-2 py-1 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors">SAIR</button>
+                <button onclick="logout()" class="text-[10px] bg-slate-100 px-2 py-1 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all">SAIR</button>
             </div>
             <nav class="flex flex-wrap gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-100">
                 <button onclick="mudarAba('insumos', this)" class="btn-aba px-6 py-2.5 rounded-lg font-bold text-sm tab-active">📦 Insumos</button>
@@ -86,7 +86,7 @@
                 <h2 class="font-bold text-lg mb-4 text-slate-800">📋 Nova Receita</h2>
                 <form id="formReceita" class="space-y-4">
                     <input type="text" id="r_nome" placeholder="Nome (ex: Massa de Coxinha)" class="w-full bg-slate-50 border p-3 rounded-xl text-sm" required>
-                    <input type="number" id="r_rendimento" placeholder="Rendimento (em unidades)" class="w-full bg-slate-50 border p-3 rounded-xl text-sm" required>
+                    <input type="number" id="r_rendimento" placeholder="Rendimento (unidades)" class="w-full bg-slate-50 border p-3 rounded-xl text-sm" required>
                     
                     <div class="p-4 bg-slate-50 rounded-xl border">
                         <h3 class="text-sm font-bold mb-2 text-slate-700">Composição (Insumos)</h3>
@@ -169,9 +169,9 @@
     </div>
 
     <script>
-        // Lembre-se de manter a sua chave válida aqui!
+        // CONFIGURAÇÃO SUPABASE
         const SUPABASE_URL = "https://ogsdzmyhchzyrjrzezod.supabase.co"; 
-        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9nc2R6bXloY2h6eXJqcnplem9kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxOTM1MDcsImV4cCI6MjA5Mzc2OTUwN30.MC4_iugS8A8SI_dDH2FGi2kGrg5-HqQo1NYVtRD1XEQ"; // <-- COLE A SUA CHAVE CORRETA AQUI ANTES DE SALVAR
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9nc2R6bXloY2h6eXJqcnplem9kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxOTM1MDcsImV4cCI6MjA5Mzc2OTUwN30.MC4_iugS8A8SI_dDH2FGi2kGrg5-HqQo1NYVtRD1XEQ"; 
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let session = null;
@@ -179,7 +179,7 @@
         let insumosReceitaTemp = [];
         let fechamentosGeral = [];
 
-        // 1. SISTEMA DE LOGIN E SESSÃO
+        // 1. SISTEMA DE LOGIN
         document.getElementById('loginForm').onsubmit = async (e) => {
             e.preventDefault();
             const email = document.getElementById('l_email').value;
@@ -222,24 +222,22 @@
             }
         })();
 
-        // 2. NAVEGAÇÃO ENTRE ABAS
+        // 2. NAVEGAÇÃO
         function mudarAba(abaId, botao) {
             document.querySelectorAll('.aba').forEach(el => el.classList.remove('ativa'));
             document.querySelectorAll('.btn-aba').forEach(el => {
                 el.classList.remove('tab-active', 'text-dc2626');
                 el.classList.add('text-slate-400');
             });
-            
             document.getElementById('aba-' + abaId).classList.add('ativa');
             botao.classList.add('tab-active');
             botao.classList.remove('text-slate-400');
-
             if(abaId === 'insumos') carregarInsumos();
             if(abaId === 'receitas') carregarReceitas();
             if(abaId === 'fechamento') carregarFechamentos();
         }
 
-        // 3. LÓGICA DE INSUMOS
+        // 3. INSUMOS
         async function carregarInsumos() {
             const res = await fetchAuth('/api/insumos');
             insumosGlobais = await res.json();
@@ -257,12 +255,7 @@
 
         document.getElementById('formInsumo').onsubmit = async function(e) {
             e.preventDefault();
-            const payload = {
-                nome: document.getElementById('i_nome').value,
-                preco: document.getElementById('i_preco').value,
-                quantidade: document.getElementById('i_qtd').value,
-                unidade: document.getElementById('i_unidade').value
-            };
+            const payload = { nome: i_nome.value, preco: i_preco.value, quantidade: i_qtd.value, unidade: i_unidade.value };
             const res = await fetchAuth('/api/insumos', { method: 'POST', body: JSON.stringify(payload) });
             if(res.ok) { document.getElementById('formInsumo').reset(); carregarInsumos(); }
         };
@@ -274,7 +267,7 @@
             }
         }
 
-        // 4. LÓGICA DE RECEITAS
+        // 4. RECEITAS
         function atualizarSelectInsumos() {
             const select = document.getElementById('r_insumo_select');
             if(select) select.innerHTML = '<option value="">Selecione...</option>' + insumosGlobais.map(i => `<option value="${i.id}">${i.nome} (${i.unidade})</option>`).join('');
@@ -284,10 +277,8 @@
             const select = document.getElementById('r_insumo_select');
             const qtd = document.getElementById('r_insumo_qtd').value;
             if(!select.value || !qtd) return;
-            
             const insumo = insumosGlobais.find(i => i.id == select.value);
             const custo = parseFloat(insumo.custo_unitario) * parseFloat(qtd);
-            
             insumosReceitaTemp.push({ id_insumo: insumo.id, nome: insumo.nome, quantidade: parseFloat(qtd), unidade: insumo.unidade, custo: custo });
             atualizarListaInsumosReceita();
             document.getElementById('r_insumo_qtd').value = '';
@@ -314,30 +305,16 @@
         document.getElementById('formReceita').onsubmit = async function(e) {
             e.preventDefault();
             const custo_total = insumosReceitaTemp.reduce((acc, curr) => acc + curr.custo, 0);
-            const rendimento = parseFloat(document.getElementById('r_rendimento').value);
-            const custo_unidade = custo_total / rendimento;
-            
-            const payload = {
-                nome: document.getElementById('r_nome').value,
-                rendimento: rendimento,
-                custo_total: custo_total,
-                custo_unidade: custo_unidade,
-                ingredientes: JSON.stringify(insumosReceitaTemp)
-            };
-            
+            const rendimento = parseFloat(r_rendimento.value);
+            const payload = { nome: r_nome.value, rendimento: rendimento, custo_total: custo_total, custo_unidade: custo_total/rendimento, ingredientes: JSON.stringify(insumosReceitaTemp) };
             await fetchAuth('/api/receitas', { method: 'POST', body: JSON.stringify(payload) });
-            document.getElementById('formReceita').reset();
-            insumosReceitaTemp = [];
-            atualizarListaInsumosReceita();
-            carregarReceitas();
+            formReceita.reset(); insumosReceitaTemp = []; atualizarListaInsumosReceita(); carregarReceitas();
         };
 
         async function carregarReceitas() {
             const res = await fetchAuth('/api/receitas');
             const dados = await res.json();
-            const lista = document.getElementById('listaReceitas');
-            if(!lista) return;
-            lista.innerHTML = dados.map(r => `
+            document.getElementById('listaReceitas').innerHTML = dados.map(r => `
                 <tr class="border-b hover:bg-slate-50">
                     <td class="py-3 font-bold text-slate-700">${r.nome}</td>
                     <td class="text-right text-slate-600">${r.rendimento} un</td>
@@ -355,12 +332,11 @@
             }
         }
 
-        // 5. LÓGICA DE FECHAMENTOS (CAIXA)
+        // 5. CAIXA
         async function carregarFechamentos() {
             const res = await fetchAuth('/api/fechamentos');
             fechamentosGeral = await res.json();
-            const lista = document.getElementById('listaFechamentos');
-            lista.innerHTML = fechamentosGeral.map(f => `
+            document.getElementById('listaFechamentos').innerHTML = fechamentosGeral.map(f => `
                 <tr class="border-b hover:bg-slate-50">
                     <td class="py-4 font-bold text-slate-700">${f.data ? f.data.split('T')[0] : ''}</td>
                     <td class="text-right font-black text-emerald-600">R$ ${parseFloat(f.total_global).toFixed(2)}</td>
@@ -375,50 +351,31 @@
 
         document.getElementById('formFechamento').onsubmit = async function(e) {
             e.preventDefault();
-            const payload = {
-                fundo_caixa: document.getElementById('f_fundo').value,
-                despesas_dia: document.getElementById('f_sangria').value,
-                caixa_dinheiro: document.getElementById('f_din').value,
-                caixa_pix: document.getElementById('f_pix').value,
-                caixa_cartao: document.getElementById('f_card').value
-            };
-            const id = document.getElementById('f_editId').value;
-            const url = id ? `/api/fechamentos/${id}` : '/api/fechamentos';
-            const method = id ? 'PUT' : 'POST';
-
-            await fetchAuth(url, { method, body: JSON.stringify(payload) });
-            cancelarEdicaoFechamento();
-            carregarFechamentos();
+            const payload = { fundo_caixa: f_fundo.value, despesas_dia: f_sangria.value, caixa_dinheiro: f_din.value, caixa_pix: f_pix.value, caixa_cartao: f_card.value };
+            const id = f_editId.value;
+            await fetchAuth(id ? `/api/fechamentos/${id}` : '/api/fechamentos', { method: id ? 'PUT' : 'POST', body: JSON.stringify(payload) });
+            cancelarEdicaoFechamento(); carregarFechamentos();
         };
 
         function editarFechamento(id) {
             const f = fechamentosGeral.find(item => item.id === id);
-            document.getElementById('f_editId').value = f.id;
-            document.getElementById('f_fundo').value = f.fundo_caixa;
-            document.getElementById('f_sangria').value = f.despesas_dia;
-            document.getElementById('f_din').value = f.caixa_dinheiro;
-            document.getElementById('f_pix').value = f.caixa_pix;
-            document.getElementById('f_card').value = f.caixa_cartao;
-            document.getElementById('formTitleFechamento').innerText = "✏️ Editar Lançamento";
-            document.getElementById('btnSubmitFechamento').innerText = "ATUALIZAR DADOS";
-            document.getElementById('btnSubmitFechamento').classList.replace('bg-emerald-500', 'bg-blue-500');
-            document.getElementById('btnCancelFechamento').classList.remove('hidden');
+            f_editId.value = f.id; f_fundo.value = f.fundo_caixa; f_sangria.value = f.despesas_dia; f_din.value = f.caixa_dinheiro; f_pix.value = f.caixa_pix; f_card.value = f.caixa_cartao;
+            formTitleFechamento.innerText = "✏️ Editar Lançamento";
+            btnSubmitFechamento.innerText = "ATUALIZAR DADOS";
+            btnSubmitFechamento.classList.replace('bg-emerald-500', 'bg-blue-500');
+            btnCancelFechamento.classList.remove('hidden');
         }
 
         function cancelarEdicaoFechamento() {
-            document.getElementById('formFechamento').reset();
-            document.getElementById('f_editId').value = "";
-            document.getElementById('formTitleFechamento').innerText = "🧾 Lançar Faturamento";
-            document.getElementById('btnSubmitFechamento').innerText = "SALVAR FECHAMENTO";
-            document.getElementById('btnSubmitFechamento').classList.replace('bg-blue-500', 'bg-emerald-500');
-            document.getElementById('btnCancelFechamento').classList.add('hidden');
+            formFechamento.reset(); f_editId.value = "";
+            formTitleFechamento.innerText = "🧾 Lançar Faturamento";
+            btnSubmitFechamento.innerText = "SALVAR FECHAMENTO";
+            btnSubmitFechamento.classList.replace('bg-blue-500', 'bg-emerald-500');
+            btnCancelFechamento.classList.add('hidden');
         }
 
         async function excluirFechamento(id) {
-            if(confirm("Excluir este relatório financeiro?")) {
-                await fetchAuth(`/api/fechamentos/${id}`, { method: 'DELETE' });
-                carregarFechamentos();
-            }
+            if(confirm("Excluir?")) { await fetchAuth(`/api/fechamentos/${id}`, { method: 'DELETE' }); carregarFechamentos(); }
         }
     </script>
 </body>
