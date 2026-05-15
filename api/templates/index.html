@@ -18,317 +18,229 @@
 <body class="p-4 md:p-8">
 
     <div id="loginOverlay" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-2xl max-w-md w-full border border-red-50 text-center">
-            <div class="text-4xl mb-4">🥟</div>
-            <h2 class="text-2xl font-black text-slate-900 mb-2">Acesso Restrito</h2>
-            <p class="text-slate-500 text-sm mb-8">Entre com suas credenciais da Oishi Salgados</p>
-            
+        <div class="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-2xl w-full max-w-md text-center">
+            <div class="text-5xl mb-6">🥟</div>
+            <h1 class="text-3xl font-extrabold text-slate-800 mb-2">Bem-vindo!</h1>
+            <p class="text-slate-500 mb-8 font-medium">Acesse o painel da Oishi Salgados</p>
             <form id="loginForm" class="space-y-4">
-                <input type="email" id="l_email" placeholder="Seu e-mail" class="w-full bg-slate-50 border p-4 rounded-2xl text-sm" required>
-                <input type="password" id="l_pass" placeholder="Sua senha" class="w-full bg-slate-50 border p-4 rounded-2xl text-sm" required>
-                <button type="submit" class="w-full bg-red-500 text-white font-bold py-4 rounded-2xl shadow-lg hover:bg-red-600 transition-all">ENTRAR NO SISTEMA</button>
+                <input type="email" id="email" placeholder="E-mail" class="w-full p-4 rounded-2xl bg-slate-50 border-2 border-slate-100 focus:border-red-400 outline-none transition-all font-semibold" required>
+                <input type="password" id="pass" placeholder="Senha" class="w-full p-4 rounded-2xl bg-slate-50 border-2 border-slate-100 focus:border-red-400 outline-none transition-all font-semibold" required>
+                <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white font-extrabold py-4 rounded-2xl shadow-lg shadow-red-200 transition-all transform active:scale-95">ENTRAR NO PAINEL</button>
             </form>
-            <p id="loginError" class="text-red-500 text-xs mt-4 hidden font-bold"></p>
         </div>
     </div>
 
-    <div id="mainContent" class="max-w-6xl mx-auto hidden">
-        
-        <header class="bg-white rounded-[2rem] p-6 shadow-sm border border-red-50 flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
-            <div class="flex items-center gap-3">
-                <h1 class="text-2xl font-black text-slate-900">🥟 Oishi Salgados</h1>
-                <button onclick="logout()" class="text-[10px] bg-slate-100 px-2 py-1 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all">SAIR DO SISTEMA</button>
+    <div class="max-w-5xl mx-auto">
+        <header class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
+            <div>
+                <h2 class="text-4xl font-black text-slate-800 tracking-tight">Oishi <span class="text-red-500 italic">Salgados</span></h2>
+                <p class="text-slate-500 font-bold flex items-center gap-2"><span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> Sistema de Gestão Ativo</p>
             </div>
-            <nav class="flex flex-wrap gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-100">
-                <button onclick="mudarAba('insumos', this)" class="btn-aba px-6 py-2.5 rounded-lg font-bold text-sm tab-active">📦 Insumos</button>
-                <button onclick="mudarAba('receitas', this)" class="btn-aba px-6 py-2.5 rounded-lg font-bold text-sm text-slate-400 hover:bg-slate-100">📋 Receitas</button>
-                <button onclick="mudarAba('fechamento', this)" class="btn-aba px-6 py-2.5 rounded-lg font-bold text-sm text-slate-400 hover:bg-slate-100">💰 Caixa Expresso</button>
-            </nav>
+            <button onclick="logout()" class="px-6 py-2 bg-white text-slate-400 font-bold rounded-xl border border-slate-200 hover:text-red-500 transition-colors">Sair</button>
         </header>
 
-        <div id="aba-insumos" class="aba ativa grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-3 bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col md:flex-row items-center gap-6 mb-2">
-                <div class="flex-1">
-                    <h3 class="text-sm font-bold text-slate-800 mb-3 uppercase tracking-wider">📦 Tutorial de Insumos:</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-600">
-                        <div class="bg-slate-50 p-3 rounded-xl border">1. Cadastre o nome e o preço total do fardo/embalagem.</div>
-                        <div class="bg-slate-50 p-3 rounded-xl border">2. Informe a quantidade (ex: 5000 para 5kg de farinha).</div>
-                        <div class="bg-slate-50 p-3 rounded-xl border">3. O sistema calcula automaticamente o custo por grama/ml.</div>
-                    </div>
-                </div>
-            </div>
+        <nav class="flex gap-2 mb-8 bg-white p-2 rounded-3xl shadow-sm border border-slate-100 overflow-x-auto no-scrollbar">
+            <button onclick="mudarAba('insumos')" id="btn-insumos" class="aba-btn flex-1 py-4 px-6 rounded-2xl font-extrabold transition-all whitespace-nowrap">🥕 Insumos</button>
+            <button onclick="mudarAba('receitas')" id="btn-receitas" class="aba-btn flex-1 py-4 px-6 rounded-2xl font-extrabold transition-all whitespace-nowrap">📜 Receitas</button>
+            <button onclick="mudarAba('caixa')" id="btn-caixa" class="aba-btn flex-1 py-4 px-6 rounded-2xl font-extrabold transition-all whitespace-nowrap">💰 Caixa</button>
+        </nav>
 
-            <div class="lg:col-span-1 bg-white rounded-3xl p-6 shadow-sm border border-slate-100 h-fit">
-                <h2 class="font-bold text-lg mb-4 text-slate-800">Novo Insumo</h2>
+        <section id="insumos" class="aba ativa grid md:grid-cols-3 gap-8">
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-white h-fit">
+                <h3 class="text-2xl font-black text-slate-800 mb-6 flex items-center gap-2">📦 Novo Insumo</h3>
                 <form id="formInsumo" class="space-y-4">
-                    <input type="text" id="i_nome" placeholder="Nome (ex: Farinha)" class="w-full bg-slate-50 border p-3 rounded-xl text-sm" required>
-                    <input type="number" step="0.01" id="i_preco" placeholder="Preço Total (R$)" class="w-full bg-slate-50 border p-3 rounded-xl text-sm" required>
-                    <div class="grid grid-cols-2 gap-2">
-                        <input type="number" step="0.01" id="i_qtd" placeholder="Qtd. Embalagem" class="bg-slate-50 border p-3 rounded-xl text-sm" required>
-                        <select id="i_unidade" class="bg-slate-50 border p-3 rounded-xl text-sm" required>
-                            <option value="g">Gramas (g)</option>
-                            <option value="ml">Mililitros (ml)</option>
-                            <option value="un">Unidade (un)</option>
-                        </select>
+                    <input type="text" id="i_nome" placeholder="Nome do Insumo" class="w-full p-4 rounded-2xl bg-slate-50 border-2 border-slate-100 focus:border-red-300 outline-none font-bold" required>
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="number" step="0.01" id="i_preco" placeholder="Preço (R$)" class="p-4 rounded-2xl bg-slate-50 border-2 border-slate-100 focus:border-red-300 outline-none font-bold" required>
+                        <input type="number" step="0.01" id="i_qtd" placeholder="Qtd (Kg/L/Un)" class="p-4 rounded-2xl bg-slate-50 border-2 border-slate-100 focus:border-red-300 outline-none font-bold" required>
                     </div>
-                    <button type="submit" class="w-full bg-red-500 text-white font-bold py-3 rounded-xl shadow-md hover:bg-red-600">SALVAR INSUMO</button>
+                    <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-extrabold py-4 rounded-2xl transition-all shadow-lg">ADICIONAR</button>
                 </form>
             </div>
-            <div class="lg:col-span-2 bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
-                <h2 class="font-bold text-lg mb-4">📊 Custo Base</h2>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead>
-                            <tr class="text-slate-400 uppercase text-[10px] border-b">
-                                <th class="pb-2">Insumo</th>
-                                <th class="pb-2 text-right">Preço Fardo</th>
-                                <th class="pb-2 text-right">Custo Unitário</th>
-                                <th class="pb-2 text-center">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="listaInsumos"></tbody>
-                    </table>
-                </div>
+            <div class="md:col-span-2 bg-white rounded-[2.5rem] shadow-xl border border-white overflow-hidden">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-50 text-slate-400 font-bold uppercase text-xs">
+                        <tr>
+                            <th class="px-8 py-5">Insumo</th>
+                            <th class="px-6 py-5 text-right">Custo Unitário</th>
+                            <th class="px-8 py-5 text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listaInsumos" class="divide-y divide-slate-100 font-bold text-slate-700"></tbody>
+                </table>
             </div>
-        </div>
+        </section>
 
-        <div id="aba-receitas" class="aba grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-3 bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col md:flex-row items-center gap-6 mb-2">
-                <div class="flex-1">
-                    <h3 class="text-sm font-bold text-slate-800 mb-3 uppercase tracking-wider">📋 Engenharia de Produção:</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-600">
-                        <div class="bg-slate-50 p-3 rounded-xl border">1. Dê um nome e informe quantas unidades a receita rende.</div>
-                        <div class="bg-slate-50 p-3 rounded-xl border">2. Selecione o insumo e a quantidade usada na receita.</div>
-                        <div class="bg-slate-50 p-3 rounded-xl border">3. O sistema calcula o custo total e o custo por salgado.</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="lg:col-span-1 bg-white rounded-3xl p-6 shadow-sm border border-slate-100 h-fit">
-                <h2 class="font-bold text-lg mb-4 text-slate-800">Nova Receita</h2>
+        <section id="receitas" class="aba grid md:grid-cols-3 gap-8">
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-white h-fit">
+                <h3 class="text-2xl font-black text-slate-800 mb-6 italic">🍳 Criar Receita</h3>
                 <form id="formReceita" class="space-y-4">
-                    <input type="text" id="r_nome" placeholder="Nome (ex: Coxinha G)" class="w-full bg-slate-50 border p-3 rounded-xl text-sm" required>
-                    <input type="number" id="r_rendimento" placeholder="Rendimento (unidades)" class="w-full bg-slate-50 border p-3 rounded-xl text-sm" required>
-                    <div class="p-4 bg-slate-50 rounded-xl border">
-                        <h3 class="text-sm font-bold mb-2">Composição</h3>
-                        <div class="flex gap-2 mb-2">
-                            <select id="r_insumo_select" class="flex-1 bg-white border p-2 rounded-lg text-sm"></select>
-                            <input type="number" step="0.01" id="r_insumo_qtd" placeholder="Qtd" class="w-20 bg-white border p-2 rounded-lg text-sm">
-                            <button type="button" onclick="adicionarInsumoNaReceita()" class="bg-slate-800 text-white px-3 rounded-lg">+</button>
+                    <input type="text" id="r_nome" placeholder="Nome da Receita" class="w-full p-4 rounded-2xl bg-slate-50 border-2 border-slate-100 font-bold outline-none" required>
+                    <div class="p-4 bg-red-50 rounded-2xl border border-red-100">
+                        <label class="block text-xs font-black text-red-400 uppercase mb-2">Adicionar Ingrediente</label>
+                        <div class="flex gap-2">
+                            <select id="r_select_insumo" class="flex-1 bg-transparent font-bold outline-none"></select>
+                            <input type="number" step="0.01" id="r_qtd_uso" placeholder="Qtd" class="w-20 bg-white p-2 rounded-lg font-bold">
+                            <button type="button" onclick="addInsumoLista()" class="bg-red-500 text-white p-2 rounded-lg font-black">+</button>
                         </div>
-                        <ul id="listaInsumosReceitaAtual" class="text-xs text-slate-600 space-y-1"></ul>
                     </div>
-                    <button type="submit" class="w-full bg-blue-500 text-white font-bold py-3 rounded-xl">SALVAR FICHA</button>
+                    <div id="listaInsumosReceitaAtual" class="space-y-2 py-2"></div>
+                    <input type="number" id="r_rendimento" placeholder="Rendimento (Unidades)" class="w-full p-4 rounded-2xl bg-slate-50 border-2 border-slate-100 font-bold outline-none" required>
+                    <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold py-4 rounded-2xl shadow-lg transition-all">SALVAR RECEITA</button>
                 </form>
             </div>
-            <div class="lg:col-span-2 bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
-                <h2 class="font-bold text-lg mb-4">📊 Fichas Técnicas</h2>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead>
-                            <tr class="text-slate-400 uppercase text-[10px] border-b">
-                                <th class="pb-2">Receita</th>
-                                <th class="pb-2 text-right">Rendimento</th>
-                                <th class="pb-2 text-right">Custo Total</th>
-                                <th class="pb-2 text-right">Custo Un.</th>
-                                <th class="pb-2 text-center">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="listaReceitas"></tbody>
-                    </table>
-                </div>
+            <div class="md:col-span-2 bg-white rounded-[2.5rem] shadow-xl border border-white overflow-hidden">
+                <table class="w-full">
+                    <thead class="bg-slate-50 text-slate-400 font-bold uppercase text-xs">
+                        <tr>
+                            <th class="px-8 py-5 text-left">Produto</th>
+                            <th class="py-5 text-right">Rende</th>
+                            <th class="py-5 text-right">Custo Total</th>
+                            <th class="py-5 text-right">Custo Un.</th>
+                            <th class="px-8 py-5 text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listaReceitas" class="divide-y divide-slate-100"></tbody>
+                </table>
             </div>
-        </div>
+        </section>
 
-        <div id="aba-fechamento" class="aba grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-3 bg-white rounded-3xl p-6 shadow-sm border border-emerald-100 flex flex-col md:flex-row items-center gap-6 mb-2">
-                <div class="flex-1">
-                    <h3 class="text-sm font-bold text-slate-800 mb-3 uppercase tracking-wider">💰 Guia de Fechamento Rápido:</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-600">
-                        <div class="bg-slate-50 p-3 rounded-xl border">1. Separe os meios de pagamento (Pix, Cartão, Dinheiro).</div>
-                        <div class="bg-slate-50 p-3 rounded-xl border">2. Registre Sangrias (dinheiro usado para compras do dia).</div>
-                        <div class="bg-slate-50 p-3 rounded-xl border">3. O sistema dirá quanto de dinheiro físico tem que estar na gaveta.</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="lg:col-span-1 bg-white rounded-3xl p-6 shadow-sm border border-emerald-100 h-fit">
-                <h2 id="formTitleFechamento" class="font-bold text-lg mb-4 text-emerald-700">🧾 Lançar Faturamento</h2>
+        <section id="caixa" class="aba grid md:grid-cols-3 gap-8">
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-white h-fit">
+                <h3 id="formTitleFechamento" class="text-2xl font-black text-slate-800 mb-6">🧾 Lançar Faturamento</h3>
                 <form id="formFechamento" class="space-y-4">
-                    <input type="hidden" id="f_editId" value="">
-                    <input type="number" step="0.01" id="f_fundo" placeholder="Fundo de Troco (R$)" class="w-full bg-slate-50 border p-3 rounded-xl text-sm" required>
-                    <input type="number" step="0.01" id="f_sangria" placeholder="Sangria (R$)" class="w-full bg-slate-50 border p-3 rounded-xl text-sm" required>
-                    <div class="grid grid-cols-2 gap-2">
-                        <input type="number" step="0.01" id="f_din" placeholder="Dinheiro" class="bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-sm font-bold" required>
-                        <input type="number" step="0.01" id="f_pix" placeholder="PIX" class="bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-sm font-bold" required>
+                    <input type="hidden" id="f_editId">
+                    <div>
+                        <label class="text-xs font-black text-slate-400 uppercase ml-2">💰 Dinheiro em Espécie</label>
+                        <input type="number" step="0.01" id="f_din" class="w-full p-4 rounded-2xl bg-slate-50 border-2 border-slate-100 font-bold outline-none" placeholder="0.00">
                     </div>
-                    <input type="number" step="0.01" id="f_card" placeholder="Cartão" class="w-full bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-sm font-bold" required>
-                    <button type="submit" id="btnSubmitFechamento" class="w-full bg-emerald-500 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-emerald-600">SALVAR CAIXA</button>
-                    <button type="button" id="btnCancelFechamento" onclick="cancelarEdicaoFechamento()" class="hidden w-full bg-slate-100 text-slate-500 font-bold py-2 rounded-xl text-xs mt-2">CANCELAR EDIÇÃO</button>
+                    <div>
+                        <label class="text-xs font-black text-slate-400 uppercase ml-2">📱 Pix</label>
+                        <input type="number" step="0.01" id="f_pix" class="w-full p-4 rounded-2xl bg-slate-50 border-2 border-slate-100 font-bold outline-none" placeholder="0.00">
+                    </div>
+                    <div>
+                        <label class="text-xs font-black text-slate-400 uppercase ml-2">💳 Cartões (Déb/Créd)</label>
+                        <input type="number" step="0.01" id="f_card" class="w-full p-4 rounded-2xl bg-slate-50 border-2 border-slate-100 font-bold outline-none" placeholder="0.00">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 pt-2">
+                        <div>
+                            <label class="text-xs font-black text-orange-400 uppercase ml-2">Fundo Inicial</label>
+                            <input type="number" step="0.01" id="f_fundo" class="w-full p-4 rounded-2xl bg-orange-50 border-2 border-orange-100 font-bold outline-none">
+                        </div>
+                        <div>
+                            <label class="text-xs font-black text-red-400 uppercase ml-2">Sangria/Desp.</label>
+                            <input type="number" step="0.01" id="f_sangria" class="w-full p-4 rounded-2xl bg-red-50 border-2 border-red-100 font-bold outline-none">
+                        </div>
+                    </div>
+                    <button type="submit" id="btnSubmitFechamento" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold py-4 rounded-2xl shadow-lg transition-all">SALVAR FECHAMENTO</button>
+                    <button type="button" id="btnCancelFechamento" onclick="cancelarEdicaoFechamento()" class="w-full bg-slate-200 text-slate-600 font-bold py-2 rounded-xl hidden">Cancelar Edição</button>
                 </form>
             </div>
-
-            <div class="lg:col-span-2 bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
-                <h2 class="font-bold text-lg mb-4">📊 Histórico de Performance</h2>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead>
-                            <tr class="text-slate-400 uppercase text-[10px] border-b">
-                                <th class="pb-2">Data e Hora</th>
-                                <th class="pb-2 text-right">Total Global</th>
-                                <th class="pb-2 text-right">Gaveta Esperada</th>
-                                <th class="pb-2 text-center">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="listaFechamentos"></tbody>
-                    </table>
-                </div>
+            <div class="md:col-span-2 space-y-4">
+                <div id="listaFechamentos" class="grid gap-4"></div>
             </div>
-        </div>
+        </section>
     </div>
 
     <script>
-        // CONFIGURAÇÃO SUPABASE
-        const SUPABASE_URL = "https://ogsdzmyhchzyrjrzezod.supabase.co"; 
-        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9nc2R6bXloY2h6eXJqcnplem9kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxOTM1MDcsImV4cCI6MjA5Mzc2OTUwN30.MC4_iugS8A8SI_dDH2FGi2kGrg5-HqQo1NYVtRD1XEQ"; 
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // CONFIGURAÇÕES E AUTH
+        let userToken = localStorage.getItem('oishi_token');
+        if (userToken) document.getElementById('loginOverlay').classList.add('hidden');
 
-        let session = null;
-        let insumosGlobais = [];
-        let insumosReceitaTemp = [];
-        let fechamentosGeral = [];
+        async function fetchAuth(url, options = {}) {
+            const headers = { 'Authorization': `Bearer ${userToken}`, 'Content-Type': 'application/json' };
+            return fetch(url, { ...options, headers });
+        }
 
-        // 1. GESTÃO DE SESSÃO E LOGIN
         document.getElementById('loginForm').onsubmit = async (e) => {
             e.preventDefault();
-            const emailValue = document.getElementById('l_email').value;
-            const passValue = document.getElementById('l_pass').value;
-            const { data, error } = await _supabase.auth.signInWithPassword({
-                email: emailValue,
-                password: passValue
-            });
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('pass').value;
+            
+            // Aqui usamos a própria API Supabase via CDN para autenticar
+            const { data, error } = await supabase.createClient('{{URL}}', '{{KEY}}').auth.signInWithPassword({ email, password });
+            
             if (error) {
-                const loginError = document.getElementById('loginError');
-                loginError.innerText = "Credenciais incorretas!";
-                loginError.classList.remove('hidden');
+                alert("Login falhou: " + error.message);
             } else {
-                localStorage.setItem('oishi_token', data.session.access_token);
+                userToken = data.session.access_token;
+                localStorage.setItem('oishi_token', userToken);
                 location.reload();
             }
         };
 
-        async function logout() {
-            await _supabase.auth.signOut();
+        function logout() {
             localStorage.removeItem('oishi_token');
             location.reload();
         }
 
-        async function fetchAuth(url, options = {}) {
-            const token = localStorage.getItem('oishi_token');
-            const headers = { ...options.headers, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
-            const res = await fetch(url, { ...options, headers });
-            if (res.status === 401) logout();
-            return res;
+        // NAVEGAÇÃO
+        function mudarAba(abaId) {
+            document.querySelectorAll('.aba').forEach(a => a.classList.remove('ativa'));
+            document.querySelectorAll('.aba-btn').forEach(b => b.classList.remove('tab-active'));
+            document.getElementById(abaId).classList.add('ativa');
+            document.getElementById('btn-' + abaId).classList.add('tab-active');
+            if (abaId === 'insumos') carregarInsumos();
+            if (abaId === 'receitas') { carregarInsumos(); carregarReceitas(); }
+            if (abaId === 'caixa') carregarFechamentos();
         }
+        mudarAba('insumos');
 
-        (async () => {
-            const { data } = await _supabase.auth.getSession();
-            if (data.session) {
-                localStorage.setItem('oishi_token', data.session.access_token);
-                document.getElementById('loginOverlay').classList.add('hidden');
-                document.getElementById('mainContent').classList.remove('hidden');
-                carregarInsumos();
-            }
-        })();
-
-        // 2. NAVEGAÇÃO
-        function mudarAba(abaId, botao) {
-            document.querySelectorAll('.aba').forEach(el => el.classList.remove('ativa'));
-            document.querySelectorAll('.btn-aba').forEach(el => {
-                el.classList.remove('tab-active');
-                el.classList.add('text-slate-400');
-            });
-            document.getElementById('aba-' + abaId).classList.add('ativa');
-            botao.classList.add('tab-active');
-            botao.classList.remove('text-slate-400');
-            if(abaId === 'insumos') carregarInsumos();
-            if(abaId === 'receitas') carregarReceitas();
-            if(abaId === 'fechamento') carregarFechamentos();
-        }
-
-        // 3. LOGICA INSUMOS
+        // LÓGICA INSUMOS
         async function carregarInsumos() {
             const res = await fetchAuth('/api/insumos');
-            insumosGlobais = await res.json();
-            document.getElementById('listaInsumos').innerHTML = insumosGlobais.map(i => `
-                <tr class="border-b hover:bg-slate-50">
-                    <td class="py-3 font-bold">${i.nome} <span class="text-[10px] font-normal">(${i.quantidade}${i.unidade})</span></td>
-                    <td class="text-right">R$ ${parseFloat(i.preco).toFixed(2)}</td>
-                    <td class="text-right font-black text-red-500">R$ ${parseFloat(i.custo_unitario).toFixed(4)}</td>
-                    <td class="text-center"><button onclick="excluirInsumo(${i.id})" class="text-red-400">🗑️</button></td>
+            const dados = await res.json();
+            const tbody = document.getElementById('listaInsumos');
+            const select = document.getElementById('r_select_insumo');
+            
+            tbody.innerHTML = dados.map(i => `
+                <tr>
+                    <td class="px-8 py-4">${i.nome}</td>
+                    <td class="px-6 py-4 text-right text-emerald-600">R$ ${parseFloat(i.custo_unitario).toFixed(2)}</td>
+                    <td class="px-8 py-4 text-center">
+                        <button onclick="excluirInsumo(${i.id})" class="text-red-300 hover:text-red-500 transition-colors text-xl">🗑️</button>
+                    </td>
                 </tr>
             `).join('');
-            atualizarSelectInsumos();
+
+            select.innerHTML = `<option value="">Escolha...</option>` + dados.map(i => `<option value='${JSON.stringify(i)}'>${i.nome}</option>`).join('');
         }
 
         document.getElementById('formInsumo').onsubmit = async (e) => {
             e.preventDefault();
-            const payload = { 
-                nome: document.getElementById('i_nome').value, 
-                preco: document.getElementById('i_preco').value, 
-                quantidade: document.getElementById('i_qtd').value, 
-                unidade: document.getElementById('i_unidade').value 
-            };
+            const payload = { nome: document.getElementById('i_nome').value, preco: document.getElementById('i_preco').value, quantidade: document.getElementById('i_qtd').value };
             await fetchAuth('/api/insumos', { method: 'POST', body: JSON.stringify(payload) });
-            document.getElementById('formInsumo').reset(); 
+            document.getElementById('formInsumo').reset();
             carregarInsumos();
         };
 
-        async function excluirInsumo(id) { 
-            if(confirm("Excluir?")) { 
-                await fetchAuth(`/api/insumos/${id}`, { method: 'DELETE' }); 
-                carregarInsumos(); 
-            } 
+        async function excluirInsumo(id) {
+            if (confirm("Excluir este insumo?")) {
+                await fetchAuth(`/api/insumos/${id}`, { method: 'DELETE' });
+                carregarInsumos();
+            }
         }
 
-        // 4. LOGICA RECEITAS
-        function atualizarSelectInsumos() {
-            const s = document.getElementById('r_insumo_select');
-            if(s) s.innerHTML = '<option value="">Selecionar...</option>' + insumosGlobais.map(i => `<option value="${i.id}">${i.nome}</option>`).join('');
+        // LÓGICA RECEITAS
+        let insumosReceitaTemp = [];
+        function addInsumoLista() {
+            const sel = document.getElementById('r_select_insumo');
+            if (!sel.value) return;
+            const insumo = JSON.parse(sel.value);
+            const qtd = parseFloat(document.getElementById('r_qtd_uso').value);
+            if (!qtd) return;
+
+            const custo = insumo.custo_unitario * qtd;
+            insumosReceitaTemp.push({ id: insumo.id, nome: insumo.nome, qtd, custo });
+            renderListaTemp();
         }
 
-        function adicionarInsumoNaReceita() {
-            const select = document.getElementById('r_insumo_select');
-            const qtd = document.getElementById('r_insumo_qtd');
-            if(!select.value || !qtd.value) return;
-            const ins = insumosGlobais.find(i => i.id == select.value);
-            
-            insumosReceitaTemp.push({ 
-                id_insumo: ins.id, 
-                nome: ins.nome, 
-                quantidade: parseFloat(qtd.value), 
-                unidade: ins.unidade, 
-                custo: ins.custo_unitario * parseFloat(qtd.value) 
-            });
-            
-            atualizarListaInsumosReceita();
-            qtd.value = '';
-        }
-
-        function removerInsumoReceita(index) {
-            insumosReceitaTemp.splice(index, 1);
-            atualizarListaInsumosReceita();
-        }
-
-        function atualizarListaInsumosReceita() {
-            document.getElementById('listaInsumosReceitaAtual').innerHTML = insumosReceitaTemp.map((item, index) => `
-                <li class="flex justify-between items-center border-b pb-1 mt-1">
-                    <span>${item.quantidade}${item.unidade || ''} - ${item.nome}</span>
-                    <div class="flex items-center gap-2">
-                        <span class="font-bold text-red-500">R$ ${item.custo.toFixed(2)}</span>
-                        <button type="button" onclick="removerInsumoReceita(${index})" class="text-red-400 font-bold ml-2">X</button>
-                    </div>
-                </li>
+        function renderListaTemp() {
+            document.getElementById('listaInsumosReceitaAtual').innerHTML = insumosReceitaTemp.map((item, idx) => `
+                <div class="flex justify-between bg-white p-2 rounded-xl text-sm font-bold shadow-sm border border-slate-100">
+                    <span>${item.nome} (${item.qtd})</span>
+                    <span class="text-red-500">R$ ${item.custo.toFixed(2)} <button type="button" onclick="insumosReceitaTemp.splice(${idx},1);renderListaTemp()" class="ml-2">✕</button></span>
+                </div>
             `).join('');
         }
 
@@ -341,8 +253,8 @@
                 nome: document.getElementById('r_nome').value, 
                 rendimento: rendimentoVal, 
                 custo_total: total, 
-                custo_unidade: total / (rendimentoVal || 1), 
-                ingredientes: JSON.stringify(insumosReceitaTemp) 
+                custo_unitario: total / (rendimentoVal || 1), // CORRETO: custo_unitario
+                ingredientes: insumosReceitaTemp 
             };
             
             const res = await fetchAuth('/api/receitas', { method: 'POST', body: JSON.stringify(payload) });
@@ -353,7 +265,7 @@
                 carregarReceitas();
             } else {
                 const erroData = await res.json();
-                alert("Erro ao salvar a receita. Detalhes: " + (erroData.error || "Falha na conexão com o banco."));
+                alert("Erro ao salvar: " + (erroData.error || "Verifique as colunas do banco."));
             }
         };
 
@@ -362,60 +274,63 @@
             const dados = await res.json();
             document.getElementById('listaReceitas').innerHTML = dados.map(r => `
                 <tr class="border-b">
-                    <td class="py-3 font-bold">${r.nome}</td>
+                    <td class="py-3 px-8 font-bold text-slate-800">${r.nome}</td>
                     <td class="text-right text-slate-500">${r.rendimento} un</td>
-                    <td class="text-right font-bold text-red-500">R$ ${parseFloat(r.custo_total).toFixed(2)}</td>
-                    <td class="text-right font-black text-emerald-600">R$ ${parseFloat(r.custo_unidade).toFixed(2)}</td>
-                    <td class="text-center"><button onclick="excluirReceita(${r.id})" class="text-red-400">🗑️</button></td>
+                    <td class="text-right font-bold text-red-500 px-4">R$ ${parseFloat(r.custo_total).toFixed(2)}</td>
+                    <td class="text-right font-black text-emerald-600 px-4">R$ ${parseFloat(r.custo_unitario).toFixed(2)}</td> <td class="text-center px-8">
+                        <button onclick="excluirReceita(${r.id})" class="text-red-400 hover:text-red-600">🗑️</button>
+                    </td>
                 </tr>
             `).join('');
         }
 
-        async function excluirReceita(id) { 
-            if(confirm("Excluir?")) { 
-                await fetchAuth(`/api/receitas/${id}`, { method: 'DELETE' }); 
-                carregarReceitas(); 
-            } 
+        async function excluirReceita(id) {
+            if (confirm("Excluir receita?")) {
+                await fetchAuth(`/api/receitas/${id}`, { method: 'DELETE' });
+                carregarReceitas();
+            }
         }
 
-        // 5. LOGICA CAIXA
+        // LÓGICA CAIXA
+        const formFechamento = document.getElementById('formFechamento');
+        const f_editId = document.getElementById('f_editId');
+        const f_din = document.getElementById('f_din');
+        const f_pix = document.getElementById('f_pix');
+        const f_card = document.getElementById('f_card');
+        const f_fundo = document.getElementById('f_fundo');
+        const f_sangria = document.getElementById('f_sangria');
+        const formTitleFechamento = document.getElementById('formTitleFechamento');
+        const btnSubmitFechamento = document.getElementById('btnSubmitFechamento');
+        const btnCancelFechamento = document.getElementById('btnCancelFechamento');
+
+        let fechamentosGeral = [];
+
         async function carregarFechamentos() {
             const res = await fetchAuth('/api/fechamentos');
             fechamentosGeral = await res.json();
             document.getElementById('listaFechamentos').innerHTML = fechamentosGeral.map(f => {
-                let dataFormatada = 'Sem Data';
-                let dataCrua = f.data || f.created_at; 
-                
-                if (dataCrua) {
-                    const objData = new Date(dataCrua);
-                    dataFormatada = objData.toLocaleDateString('pt-BR') + ' às ' + objData.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
-                }
-                
+                const dataFormatada = f.data ? new Date(f.data).toLocaleString('pt-BR') : 'Sem data';
                 return `
-                    <tr class="border-b hover:bg-slate-50">
-                        <td class="py-4 font-bold text-slate-700 whitespace-nowrap">${dataFormatada}</td>
-                        <td class="text-right font-black text-emerald-600">R$ ${parseFloat(f.total_global).toFixed(2)}</td>
-                        <td class="text-right font-semibold text-slate-500">R$ ${parseFloat(f.esperado_gaveta).toFixed(2)}</td>
-                        <td class="text-center">
-                            <button onclick="editarFechamento(${f.id})" class="text-blue-500 mr-2">✏️</button>
-                            <button onclick="excluirFechamento(${f.id})" class="text-red-500">🗑️</button>
-                        </td>
-                    </tr>
-                `;
+                <div class="bg-white p-6 rounded-[2rem] shadow-md border border-slate-100 flex justify-between items-center group">
+                    <div class="flex-1">
+                        <div class="text-xs font-black text-slate-300 uppercase mb-1">${dataFormatada}</div>
+                        <div class="flex gap-6">
+                            <div><p class="text-[10px] font-black text-slate-400 uppercase">Total Vendas</p><p class="text-xl font-black text-slate-800">R$ ${parseFloat(f.total_global).toFixed(2)}</p></div>
+                            <div><p class="text-[10px] font-black text-emerald-400 uppercase">Faturamento</p><p class="text-xl font-black text-emerald-600">R$ ${(f.caixa_dinheiro + f.caixa_pix + f.caixa_cartao).toFixed(2)}</p></div>
+                        </div>
+                    </div>
+                    <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onclick="editarFechamento(${f.id})" class="p-3 bg-blue-50 text-blue-500 rounded-2xl hover:bg-blue-500 hover:text-white transition-all">✏️</button>
+                        <button onclick="excluirFechamento(${f.id})" class="p-3 bg-red-50 text-red-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all">🗑️</button>
+                    </div>
+                </div>`;
             }).join('');
         }
 
-        document.getElementById('formFechamento').onsubmit = async (e) => {
+        formFechamento.onsubmit = async (e) => {
             e.preventDefault();
-            const payload = { 
-                data: new Date().toISOString(), // <-- Forçando a data exata do clique
-                fundo_caixa: document.getElementById('f_fundo').value, 
-                despesas_dia: document.getElementById('f_sangria').value, 
-                caixa_dinheiro: document.getElementById('f_din').value, 
-                caixa_pix: document.getElementById('f_pix').value, 
-                caixa_cartao: document.getElementById('f_card').value 
-            };
-            const id = document.getElementById('f_editId').value;
+            const payload = { fundo_caixa: f_fundo.value, despesas_dia: f_sangria.value, caixa_dinheiro: f_din.value, caixa_pix: f_pix.value, caixa_cartao: f_card.value };
+            const id = f_editId.value;
             await fetchAuth(id ? `/api/fechamentos/${id}` : '/api/fechamentos', { method: id ? 'PUT' : 'POST', body: JSON.stringify(payload) });
             cancelarEdicaoFechamento(); 
             carregarFechamentos();
@@ -423,42 +338,32 @@
 
         function editarFechamento(id) {
             const f = fechamentosGeral.find(item => item.id === id);
-            document.getElementById('f_editId').value = f.id; 
-            document.getElementById('f_fundo').value = f.fundo_caixa; 
-            document.getElementById('f_sangria').value = f.despesas_dia; 
-            document.getElementById('f_din').value = f.caixa_dinheiro; 
-            document.getElementById('f_pix').value = f.caixa_pix; 
-            document.getElementById('f_card').value = f.caixa_cartao;
-            
-            const formTitle = document.getElementById('formTitleFechamento');
-            const btnSubmit = document.getElementById('btnSubmitFechamento');
-            const btnCancel = document.getElementById('btnCancelFechamento');
-
-            formTitle.innerText = "✏️ Editar Dados";
-            btnSubmit.innerText = "ATUALIZAR";
-            btnSubmit.classList.replace('bg-emerald-500', 'bg-blue-500');
-            btnCancel.classList.remove('hidden');
+            f_editId.value = f.id; 
+            f_fundo.value = f.fundo_caixa; 
+            f_sangria.value = f.despesas_dia; 
+            f_din.value = f.caixa_dinheiro; 
+            f_pix.value = f.caixa_pix; 
+            f_card.value = f.caixa_cartao;
+            formTitleFechamento.innerText = "✏️ Editar Dados";
+            btnSubmitFechamento.innerText = "ATUALIZAR";
+            btnSubmitFechamento.classList.replace('bg-emerald-500', 'bg-blue-500');
+            btnCancelFechamento.classList.remove('hidden');
         }
 
         function cancelarEdicaoFechamento() {
-            document.getElementById('formFechamento').reset(); 
-            document.getElementById('f_editId').value = "";
-            
-            const formTitle = document.getElementById('formTitleFechamento');
-            const btnSubmit = document.getElementById('btnSubmitFechamento');
-            const btnCancel = document.getElementById('btnCancelFechamento');
-
-            formTitle.innerText = "🧾 Lançar Faturamento";
-            btnSubmit.innerText = "SALVAR FECHAMENTO";
-            btnSubmit.classList.replace('bg-blue-500', 'bg-emerald-500');
-            btnCancel.classList.add('hidden');
+            formFechamento.reset(); 
+            f_editId.value = "";
+            formTitleFechamento.innerText = "🧾 Lançar Faturamento";
+            btnSubmitFechamento.innerText = "SALVAR FECHAMENTO";
+            btnSubmitFechamento.classList.replace('bg-blue-500', 'bg-emerald-500');
+            btnCancelFechamento.classList.add('hidden');
         }
 
-        async function excluirFechamento(id) { 
-            if(confirm("Excluir?")) { 
-                await fetchAuth(`/api/fechamentos/${id}`, { method: 'DELETE' }); 
-                carregarFechamentos(); 
-            } 
+        async function excluirFechamento(id) {
+            if (confirm("Excluir este lançamento?")) {
+                await fetchAuth(`/api/fechamentos/${id}`, { method: 'DELETE' });
+                carregarFechamentos();
+            }
         }
     </script>
 </body>
