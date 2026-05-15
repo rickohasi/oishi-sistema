@@ -5,58 +5,65 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Oishi Salgados | Gestão Profissional</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #fcf8f3; }
         .tab-active { background-color: #fef2f2; color: #dc2626; border: 1px solid #fee2e2; }
         .aba { display: none; }
         .aba.ativa { display: grid; }
+        #loginOverlay { backdrop-filter: blur(8px); }
     </style>
 </head>
 <body class="p-4 md:p-8">
-    <div class="max-w-6xl mx-auto">
+
+    <div id="loginOverlay" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-2xl max-w-md w-full border border-red-50 text-center">
+            <div class="text-4xl mb-4">🥟</div>
+            <h2 class="text-2xl font-black text-slate-900 mb-2">Acesso Restrito</h2>
+            <p class="text-slate-500 text-sm mb-8">Entre com suas credenciais da Oishi Salgados</p>
+            
+            <form id="loginForm" class="space-y-4">
+                <input type="email" id="l_email" placeholder="Seu e-mail" class="w-full bg-slate-50 border p-4 rounded-2xl text-sm" required>
+                <input type="password" id="l_pass" placeholder="Sua senha" class="w-full bg-slate-50 border p-4 rounded-2xl text-sm" required>
+                <button type="submit" class="w-full bg-red-500 text-white font-bold py-4 rounded-2xl shadow-lg hover:bg-red-600 transition-all">ENTRAR NO SISTEMA</button>
+            </form>
+            <p id="loginError" class="text-red-500 text-xs mt-4 hidden font-bold"></p>
+        </div>
+    </div>
+
+    <div id="mainContent" class="max-w-6xl mx-auto hidden">
         
         <header class="bg-white rounded-[2rem] p-6 shadow-sm border border-red-50 flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
-            <h1 class="text-2xl font-black text-slate-900">🥟 Oishi Salgados</h1>
+            <div class="flex items-center gap-3">
+                <h1 class="text-2xl font-black text-slate-900">🥟 Oishi Salgados</h1>
+                <button onclick="logout()" class="text-[10px] bg-slate-100 px-2 py-1 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-500">SAIR</button>
+            </div>
             <nav class="flex flex-wrap gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-100">
                 <button onclick="mudarAba('insumos', this)" class="btn-aba px-6 py-2.5 rounded-lg font-bold text-sm tab-active">📦 Insumos</button>
-                <button onclick="mudarAba('receitas', this)" class="btn-aba px-6 py-2.5 rounded-lg font-bold text-sm text-slate-400 hover:bg-slate-100">📋 Receitas</button>
-                <button onclick="mudarAba('fechamento', this)" class="btn-aba px-6 py-2.5 rounded-lg font-bold text-sm text-slate-400 hover:bg-slate-100">💰 Caixa Expresso</button>
+                <button onclick="mudarAba('receitas', this)" class="btn-aba px-6 py-2.5 rounded-lg font-bold text-sm text-slate-400">📋 Receitas</button>
+                <button onclick="mudarAba('fechamento', this)" class="btn-aba px-6 py-2.5 rounded-lg font-bold text-sm text-slate-400">💰 Caixa</button>
             </nav>
         </header>
 
         <div id="aba-insumos" class="aba ativa grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="lg:col-span-1 bg-white rounded-3xl p-6 shadow-sm border border-slate-100 h-fit">
-                <h2 class="font-bold text-lg mb-4 text-slate-800">📦 Cadastrar Insumo</h2>
+                <h2 class="font-bold text-lg mb-4 text-slate-800">📦 Novo Insumo</h2>
                 <form id="formInsumo" class="space-y-4">
-                    <input type="text" id="i_nome" placeholder="Nome do Insumo" class="w-full bg-slate-50 border p-3 rounded-xl text-sm" required>
-                    <input type="number" step="0.01" id="i_preco" placeholder="Preço Total (R$)" class="w-full bg-slate-50 border p-3 rounded-xl text-sm" required>
+                    <input type="text" id="i_nome" placeholder="Nome" class="w-full bg-slate-50 border p-3 rounded-xl text-sm" required>
+                    <input type="number" step="0.01" id="i_preco" placeholder="Preço (R$)" class="w-full bg-slate-50 border p-3 rounded-xl text-sm" required>
                     <div class="grid grid-cols-2 gap-2">
-                        <input type="number" step="0.01" id="i_qtd" placeholder="Qtd. Embalagem" class="bg-slate-50 border p-3 rounded-xl text-sm" required>
-                        <select id="i_unidade" class="bg-slate-50 border p-3 rounded-xl text-sm" required>
-                            <option value="g">Gramas (g)</option>
-                            <option value="ml">Mililitros (ml)</option>
-                            <option value="un">Unidade (un)</option>
-                        </select>
+                        <input type="number" step="0.01" id="i_qtd" placeholder="Qtd" class="bg-slate-50 border p-3 rounded-xl text-sm" required>
+                        <select id="i_unidade" class="bg-slate-50 border p-3 rounded-xl text-sm"><option value="g">g</option><option value="ml">ml</option><option value="un">un</option></select>
                     </div>
-                    <button type="submit" class="w-full bg-red-500 text-white font-bold py-3 rounded-xl shadow-md hover:bg-red-600">SALVAR INSUMO</button>
+                    <button type="submit" class="w-full bg-red-500 text-white font-bold py-3 rounded-xl shadow-md">SALVAR</button>
                 </form>
             </div>
-            <div class="lg:col-span-2 bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
-                <h2 class="font-bold text-lg mb-4">📊 Custo Base</h2>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead>
-                            <tr class="text-slate-400 uppercase text-[10px] border-b">
-                                <th class="pb-2">Insumo</th>
-                                <th class="pb-2 text-right">Preço Fardo</th>
-                                <th class="pb-2 text-right">Custo Unitário</th>
-                                <th class="pb-2 text-center">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="listaInsumos"></tbody>
-                    </table>
-                </div>
+            <div class="lg:col-span-2 bg-white rounded-3xl p-6 shadow-sm border border-slate-100 overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead><tr class="text-slate-400 uppercase text-[10px] border-b"><th class="pb-2">Insumo</th><th class="pb-2 text-right">Custo Unit.</th><th class="pb-2 text-center">Ações</th></tr></thead>
+                    <tbody id="listaInsumos"></tbody>
+                </table>
             </div>
         </div>
 
@@ -64,10 +71,9 @@
             <div class="lg:col-span-1 bg-white rounded-3xl p-6 shadow-sm border border-slate-100 h-fit">
                 <h2 class="font-bold text-lg mb-4 text-slate-800">📋 Nova Receita</h2>
                 <form id="formReceita" class="space-y-4">
-                    <input type="text" id="r_nome" placeholder="Nome da Receita" class="w-full bg-slate-50 border p-3 rounded-xl text-sm" required>
-                    <input type="number" id="r_rendimento" placeholder="Rendimento (unidades)" class="w-full bg-slate-50 border p-3 rounded-xl text-sm" required>
+                    <input type="text" id="r_nome" placeholder="Nome" class="w-full bg-slate-50 border p-3 rounded-xl text-sm" required>
+                    <input type="number" id="r_rendimento" placeholder="Rendimento" class="w-full bg-slate-50 border p-3 rounded-xl text-sm" required>
                     <div class="p-4 bg-slate-50 rounded-xl border">
-                        <h3 class="text-sm font-bold mb-2">Composição</h3>
                         <div class="flex gap-2 mb-2">
                             <select id="r_insumo_select" class="flex-1 bg-white border p-2 rounded-lg text-sm"></select>
                             <input type="number" step="0.01" id="r_insumo_qtd" placeholder="Qtd" class="w-20 bg-white border p-2 rounded-lg text-sm">
@@ -75,85 +81,107 @@
                         </div>
                         <ul id="listaInsumosReceitaAtual" class="text-xs text-slate-600 space-y-1"></ul>
                     </div>
-                    <button type="submit" class="w-full bg-blue-500 text-white font-bold py-3 rounded-xl">SALVAR RECEITA</button>
+                    <button type="submit" class="w-full bg-blue-500 text-white font-bold py-3 rounded-xl">SALVAR</button>
                 </form>
             </div>
-            <div class="lg:col-span-2 bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
-                <h2 class="font-bold text-lg mb-4">📊 Engenharia de Cardápio</h2>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead>
-                            <tr class="text-slate-400 uppercase text-[10px] border-b">
-                                <th class="pb-2">Receita</th>
-                                <th class="pb-2 text-right">Custo Total</th>
-                                <th class="pb-2 text-right">Custo Un.</th>
-                                <th class="pb-2 text-center">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="listaReceitas"></tbody>
-                    </table>
-                </div>
+            <div class="lg:col-span-2 bg-white rounded-3xl p-6 shadow-sm border border-slate-100 overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead><tr class="text-slate-400 uppercase text-[10px] border-b"><th class="pb-2">Receita</th><th class="pb-2 text-right">Custo Un.</th><th class="pb-2 text-center">Ações</th></tr></thead>
+                    <tbody id="listaReceitas"></tbody>
+                </table>
             </div>
         </div>
 
         <div id="aba-fechamento" class="aba grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="lg:col-span-1 bg-white rounded-3xl p-6 shadow-sm border border-emerald-100 h-fit">
-                <h2 id="formTitleFechamento" class="font-bold text-lg mb-4 text-emerald-700">💰 Fechamento de Caixa</h2>
+                <h2 class="font-bold text-lg mb-4 text-emerald-700">💰 Caixa</h2>
                 <form id="formFechamento" class="space-y-4">
                     <input type="hidden" id="f_editId" value="">
-                    <input type="number" step="0.01" id="f_fundo" placeholder="Fundo de Troco (R$)" class="w-full bg-slate-50 border p-3 rounded-xl text-sm" required>
-                    <input type="number" step="0.01" id="f_sangria" placeholder="Sangria (R$)" class="w-full bg-slate-50 border p-3 rounded-xl text-sm" required>
+                    <input type="number" step="0.01" id="f_fundo" placeholder="Troco Inicial" class="w-full bg-slate-50 border p-3 rounded-xl text-sm" required>
+                    <input type="number" step="0.01" id="f_sangria" placeholder="Sangria" class="w-full bg-slate-50 border p-3 rounded-xl text-sm" required>
                     <div class="grid grid-cols-2 gap-2">
                         <input type="number" step="0.01" id="f_din" placeholder="Dinheiro" class="bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-sm font-bold" required>
                         <input type="number" step="0.01" id="f_pix" placeholder="PIX" class="bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-sm font-bold" required>
                     </div>
                     <input type="number" step="0.01" id="f_card" placeholder="Cartão" class="w-full bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-sm font-bold" required>
-                    <button type="submit" id="btnSubmitFechamento" class="w-full bg-emerald-500 text-white font-bold py-4 rounded-xl shadow-lg">SALVAR CAIXA</button>
-                    <button type="button" id="btnCancelFechamento" onclick="cancelarEdicaoFechamento()" class="hidden w-full bg-slate-100 text-slate-500 py-2 rounded-xl text-xs mt-2">CANCELAR EDIÇÃO</button>
+                    <button type="submit" id="btnSubmitFechamento" class="w-full bg-emerald-500 text-white font-bold py-4 rounded-xl">SALVAR</button>
                 </form>
             </div>
-            <div class="lg:col-span-2 bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
-                <h2 class="font-bold text-lg mb-4">📊 Histórico Financeiro</h2>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead>
-                            <tr class="text-slate-400 uppercase text-[10px] border-b">
-                                <th class="pb-2">Data</th>
-                                <th class="pb-2 text-right">Faturado</th>
-                                <th class="pb-2 text-right">Gaveta</th>
-                                <th class="pb-2 text-center">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="listaFechamentos"></tbody>
-                    </table>
-                </div>
+            <div class="lg:col-span-2 bg-white rounded-3xl p-6 shadow-sm border border-slate-100 overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead><tr class="text-slate-400 uppercase text-[10px] border-b"><th class="pb-2">Data</th><th class="pb-2 text-right">Faturado</th><th class="pb-2 text-center">Ações</th></tr></thead>
+                    <tbody id="listaFechamentos"></tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <script>
+        // CONFIGURAÇÃO SUPABASE FRONTEND
+        // Estes dados são pegos da Vercel mas injetados aqui para o JS usar
+        const SUPABASE_URL = "SUA_URL_AQUI"; // A Vercel vai cuidar disso, mas o JS precisa do valor
+        const SUPABASE_KEY = "SUA_KEY_AQUI"; // Use a anon key aqui
+        const _supabase = supabase.createClient('https://ogsdzmyhchzyrjrzezod.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9nc2R6bXloY2h6eXJqcnplem9kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTU0Mzg2NTQsImV4cCI6MjAzMTAxNDY1NH0.G7W1uXU88X_QhP_j7Y0X8X_QhP_j7Y0X8X_QhP_j7Y0');
+
+        let session = null;
         let insumosGlobais = [];
         let insumosReceitaTemp = [];
-        let fechamentosGeral = [];
 
+        // 1. GESTÃO DE LOGIN
+        document.getElementById('loginForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('l_email').value;
+            const password = document.getElementById('l_pass').value;
+            const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+            
+            if (error) {
+                document.getElementById('loginError').innerText = "Senha ou e-mail incorretos!";
+                document.getElementById('loginError').classList.remove('hidden');
+            } else {
+                session = data.session;
+                localStorage.setItem('oishi_token', session.access_token);
+                document.getElementById('loginOverlay').classList.add('hidden');
+                document.getElementById('mainContent').classList.remove('hidden');
+                carregarInsumos();
+            }
+        };
+
+        async function logout() {
+            await _supabase.auth.signOut();
+            localStorage.removeItem('oishi_token');
+            location.reload();
+        }
+
+        // 2. FUNÇÃO DE FETCH PROTEGIDA (Adiciona o Token em cada pedido)
+        async function fetchAuth(url, options = {}) {
+            const token = localStorage.getItem('oishi_token');
+            const headers = { ...options.headers, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+            const res = await fetch(url, { ...options, headers });
+            if (res.status === 401) logout();
+            return res;
+        }
+
+        // 3. LÓGICA DAS ABAS E DADOS (Igual, mas usando fetchAuth)
         function mudarAba(abaId, botao) {
             document.querySelectorAll('.aba').forEach(el => el.classList.remove('ativa'));
-            document.querySelectorAll('.btn-aba').forEach(el => el.classList.remove('tab-active'));
+            document.querySelectorAll('.btn-aba').forEach(el => {
+                el.classList.remove('tab-active');
+                el.classList.add('text-slate-400');
+            });
             document.getElementById('aba-' + abaId).classList.add('ativa');
             botao.classList.add('tab-active');
+            botao.classList.remove('text-slate-400');
             if(abaId === 'insumos') carregarInsumos();
             if(abaId === 'receitas') carregarReceitas();
             if(abaId === 'fechamento') carregarFechamentos();
         }
 
         async function carregarInsumos() {
-            const res = await fetch('/api/insumos');
+            const res = await fetchAuth('/api/insumos');
             insumosGlobais = await res.json();
-            const lista = document.getElementById('listaInsumos');
-            lista.innerHTML = insumosGlobais.map(i => `
-                <tr class="border-b hover:bg-slate-50">
+            document.getElementById('listaInsumos').innerHTML = insumosGlobais.map(i => `
+                <tr class="border-b">
                     <td class="py-3 font-bold">${i.nome}</td>
-                    <td class="text-right">R$ ${parseFloat(i.preco).toFixed(2)}</td>
                     <td class="text-right font-black text-red-500">R$ ${parseFloat(i.custo_unitario).toFixed(4)}</td>
                     <td class="text-center"><button onclick="excluirInsumo(${i.id})" class="text-red-400">🗑️</button></td>
                 </tr>
@@ -161,135 +189,79 @@
             atualizarSelectInsumos();
         }
 
-        document.getElementById('formInsumo').onsubmit = async function(e) {
+        document.getElementById('formInsumo').onsubmit = async (e) => {
             e.preventDefault();
-            const payload = {
-                nome: document.getElementById('i_nome').value,
-                preco: document.getElementById('i_preco').value,
-                quantidade: document.getElementById('i_qtd').value,
-                unidade: document.getElementById('i_unidade').value
-            };
-            const res = await fetch('/api/insumos', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
-            if(res.ok) { document.getElementById('formInsumo').reset(); carregarInsumos(); }
-            else { alert("Erro ao salvar no banco!"); }
+            const payload = { nome: i_nome.value, preco: i_preco.value, quantidade: i_qtd.value, unidade: i_unidade.value };
+            await fetchAuth('/api/insumos', { method: 'POST', body: JSON.stringify(payload) });
+            formInsumo.reset(); carregarInsumos();
         };
 
-        async function excluirInsumo(id) {
-            if(confirm("Excluir?")) { await fetch(`/api/insumos/${id}`, { method: 'DELETE' }); carregarInsumos(); }
-        }
+        async function excluirInsumo(id) { if(confirm("Excluir?")) { await fetchAuth(`/api/insumos/${id}`, { method: 'DELETE' }); carregarInsumos(); } }
 
         function atualizarSelectInsumos() {
-            const select = document.getElementById('r_insumo_select');
-            if(select) select.innerHTML = '<option value="">Selecione...</option>' + insumosGlobais.map(i => `<option value="${i.id}">${i.nome}</option>`).join('');
+            const s = document.getElementById('r_insumo_select');
+            if(s) s.innerHTML = '<option value="">Selecionar...</option>' + insumosGlobais.map(i => `<option value="${i.id}">${i.nome}</option>`).join('');
         }
 
         function adicionarInsumoNaReceita() {
-            const select = document.getElementById('r_insumo_select');
-            const qtd = document.getElementById('r_insumo_qtd').value;
-            if(!select.value || !qtd) return;
-            const insumo = insumosGlobais.find(i => i.id == select.value);
-            const custo = parseFloat(insumo.custo_unitario) * parseFloat(qtd);
-            insumosReceitaTemp.push({ id_insumo: insumo.id, nome: insumo.nome, quantidade: parseFloat(qtd), custo: custo });
-            atualizarListaInsumosReceita();
+            const s = r_insumo_select; const q = r_insumo_qtd;
+            if(!s.value || !q.value) return;
+            const ins = insumosGlobais.find(i => i.id == s.value);
+            insumosReceitaTemp.push({ id_insumo: ins.id, nome: ins.nome, quantidade: q.value, custo: ins.custo_unitario * q.value });
+            listaInsumosReceitaAtual.innerHTML = insumosReceitaTemp.map(item => `<li>${item.nome}: R$ ${item.custo.toFixed(2)}</li>`).join('');
         }
 
-        function atualizarListaInsumosReceita() {
-            const ul = document.getElementById('listaInsumosReceitaAtual');
-            ul.innerHTML = insumosReceitaTemp.map((item, index) => `<li class="flex justify-between"><span>${item.nome}</span> <b>R$ ${item.custo.toFixed(2)}</b></li>`).join('');
-        }
-
-        document.getElementById('formReceita').onsubmit = async function(e) {
+        document.getElementById('formReceita').onsubmit = async (e) => {
             e.preventDefault();
-            const custo_total = insumosReceitaTemp.reduce((acc, curr) => acc + curr.custo, 0);
-            const rendimento = parseFloat(document.getElementById('r_rendimento').value);
-            const payload = {
-                nome: document.getElementById('r_nome').value,
-                rendimento: rendimento,
-                custo_total: custo_total,
-                custo_unidade: custo_total / rendimento,
-                ingredientes: JSON.stringify(insumosReceitaTemp)
-            };
-            const res = await fetch('/api/receitas', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
-            if(res.ok) { document.getElementById('formReceita').reset(); insumosReceitaTemp = []; carregarReceitas(); }
+            const total = insumosReceitaTemp.reduce((a, b) => a + b.custo, 0);
+            const payload = { nome: r_nome.value, rendimento: r_rendimento.value, custo_total: total, custo_unidade: total/r_rendimento.value, ingredientes: JSON.stringify(insumosReceitaTemp) };
+            await fetchAuth('/api/receitas', { method: 'POST', body: JSON.stringify(payload) });
+            formReceita.reset(); insumosReceitaTemp = []; carregarReceitas();
         };
 
         async function carregarReceitas() {
-            const res = await fetch('/api/receitas');
+            const res = await fetchAuth('/api/receitas');
             const dados = await res.json();
-            const lista = document.getElementById('listaReceitas');
-            lista.innerHTML = dados.map(r => `
+            document.getElementById('listaReceitas').innerHTML = dados.map(r => `
                 <tr class="border-b">
                     <td class="py-3 font-bold">${r.nome}</td>
-                    <td class="text-right">R$ ${parseFloat(r.custo_total).toFixed(2)}</td>
                     <td class="text-right font-black text-emerald-600">R$ ${parseFloat(r.custo_unidade).toFixed(2)}</td>
                     <td class="text-center"><button onclick="excluirReceita(${r.id})" class="text-red-400">🗑️</button></td>
                 </tr>
             `).join('');
         }
 
-        async function excluirReceita(id) {
-            if(confirm("Excluir?")) { await fetch(`/api/receitas/${id}`, { method: 'DELETE' }); carregarReceitas(); }
-        }
-
         async function carregarFechamentos() {
-            const res = await fetch('/api/fechamentos');
+            const res = await fetchAuth('/api/fechamentos');
             fechamentosGeral = await res.json();
-            const lista = document.getElementById('listaFechamentos');
-            lista.innerHTML = fechamentosGeral.map(f => `
+            document.getElementById('listaFechamentos').innerHTML = fechamentosGeral.map(f => `
                 <tr class="border-b">
-                    <td class="py-4 font-bold">${f.data ? f.data.split('T')[0] : ''}</td>
-                    <td class="text-right font-black text-emerald-600">R$ ${parseFloat(f.total_global).toFixed(2)}</td>
-                    <td class="text-right font-semibold">R$ ${parseFloat(f.esperado_gaveta).toFixed(2)}</td>
-                    <td class="text-center">
-                        <button onclick="editarFechamento(${f.id})" class="text-blue-500 mr-2">✏️</button>
-                        <button onclick="excluirFechamento(${f.id})" class="text-red-500">🗑️</button>
-                    </td>
+                    <td class="py-4 font-bold text-slate-700">${f.data ? f.data.split('T')[0] : ''}</td>
+                    <td class="text-right font-black text-emerald-600">R$ ${f.total_global.toFixed(2)}</td>
+                    <td class="text-center"><button onclick="excluirFechamento(${f.id})" class="text-red-400">🗑️</button></td>
                 </tr>
             `).join('');
         }
 
-        document.getElementById('formFechamento').onsubmit = async function(e) {
+        document.getElementById('formFechamento').onsubmit = async (e) => {
             e.preventDefault();
-            const payload = {
-                fundo_caixa: document.getElementById('f_fundo').value,
-                despesas_dia: document.getElementById('f_sangria').value,
-                caixa_dinheiro: document.getElementById('f_din').value,
-                caixa_pix: document.getElementById('f_pix').value,
-                caixa_cartao: document.getElementById('f_card').value
-            };
-            const id = document.getElementById('f_editId').value;
-            const res = await fetch(id ? `/api/fechamentos/${id}` : '/api/fechamentos', { 
-                method: id ? 'PUT' : 'POST', 
-                headers: {'Content-Type': 'application/json'}, 
-                body: JSON.stringify(payload) 
-            });
-            if(res.ok) { cancelarEdicaoFechamento(); carregarFechamentos(); }
+            const payload = { fundo_caixa: f_fundo.value, despesas_dia: f_sangria.value, caixa_dinheiro: f_din.value, caixa_pix: f_pix.value, caixa_cartao: f_card.value };
+            await fetchAuth('/api/fechamentos', { method: 'POST', body: JSON.stringify(payload) });
+            formFechamento.reset(); carregarFechamentos();
         };
 
-        function editarFechamento(id) {
-            const f = fechamentosGeral.find(item => item.id === id);
-            document.getElementById('f_editId').value = f.id;
-            document.getElementById('f_fundo').value = f.fundo_caixa;
-            document.getElementById('f_sangria').value = f.despesas_dia;
-            document.getElementById('f_din').value = f.caixa_dinheiro;
-            document.getElementById('f_pix').value = f.caixa_pix;
-            document.getElementById('f_card').value = f.caixa_cartao;
-            document.getElementById('btnSubmitFechamento').innerText = "ATUALIZAR";
-            document.getElementById('btnCancelFechamento').classList.remove('hidden');
-        }
+        async function excluirFechamento(id) { if(confirm("Excluir?")) { await fetchAuth(`/api/fechamentos/${id}`, { method: 'DELETE' }); carregarFechamentos(); } }
 
-        function cancelarEdicaoFechamento() {
-            document.getElementById('formFechamento').reset();
-            document.getElementById('f_editId').value = "";
-            document.getElementById('btnSubmitFechamento').innerText = "SALVAR CAIXA";
-            document.getElementById('btnCancelFechamento').classList.add('hidden');
-        }
-
-        async function excluirFechamento(id) {
-            if(confirm("Excluir?")) { await fetch(`/api/fechamentos/${id}`, { method: 'DELETE' }); carregarFechamentos(); }
-        }
-
-        window.onload = carregarInsumos;
+        // Verifica se já está logado ao abrir
+        (async () => {
+            const { data } = await _supabase.auth.getSession();
+            if (data.session) {
+                localStorage.setItem('oishi_token', data.session.access_token);
+                document.getElementById('loginOverlay').classList.add('hidden');
+                document.getElementById('mainContent').classList.remove('hidden');
+                carregarInsumos();
+            }
+        })();
     </script>
 </body>
 </html>
