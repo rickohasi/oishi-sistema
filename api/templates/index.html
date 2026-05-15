@@ -29,7 +29,7 @@
             <div class="lg:col-span-1 bg-white rounded-3xl p-6 shadow-sm border border-slate-100 h-fit">
                 <h2 class="font-bold text-lg mb-4 text-slate-800">📦 Cadastrar Insumo</h2>
                 <form id="formInsumo" class="space-y-4">
-                    <input type="text" id="i_nome" placeholder="Nome do Insumo (ex: Farinha)" class="w-full bg-slate-50 border p-3 rounded-xl text-sm" required>
+                    <input type="text" id="i_nome" placeholder="Nome do Insumo" class="w-full bg-slate-50 border p-3 rounded-xl text-sm" required>
                     <input type="number" step="0.01" id="i_preco" placeholder="Preço Total (R$)" class="w-full bg-slate-50 border p-3 rounded-xl text-sm" required>
                     <div class="grid grid-cols-2 gap-2">
                         <input type="number" step="0.01" id="i_qtd" placeholder="Qtd. Embalagem" class="bg-slate-50 border p-3 rounded-xl text-sm" required>
@@ -39,11 +39,11 @@
                             <option value="un">Unidade (un)</option>
                         </select>
                     </div>
-                    <button type="submit" class="w-full bg-red-500 text-white font-bold py-3 rounded-xl shadow-md hover:bg-red-600 transition-all">SALVAR INSUMO</button>
+                    <button type="submit" class="w-full bg-red-500 text-white font-bold py-3 rounded-xl shadow-md hover:bg-red-600">SALVAR INSUMO</button>
                 </form>
             </div>
             <div class="lg:col-span-2 bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
-                <h2 class="font-bold text-lg mb-4">📊 Custo Base (Grama/ML)</h2>
+                <h2 class="font-bold text-lg mb-4">📊 Custo Base</h2>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm">
                         <thead>
@@ -64,20 +64,18 @@
             <div class="lg:col-span-1 bg-white rounded-3xl p-6 shadow-sm border border-slate-100 h-fit">
                 <h2 class="font-bold text-lg mb-4 text-slate-800">📋 Nova Receita</h2>
                 <form id="formReceita" class="space-y-4">
-                    <input type="text" id="r_nome" placeholder="Nome (ex: Massa de Coxinha)" class="w-full bg-slate-50 border p-3 rounded-xl text-sm" required>
-                    <input type="number" id="r_rendimento" placeholder="Rendimento (em unidades)" class="w-full bg-slate-50 border p-3 rounded-xl text-sm" required>
-                    
+                    <input type="text" id="r_nome" placeholder="Nome da Receita" class="w-full bg-slate-50 border p-3 rounded-xl text-sm" required>
+                    <input type="number" id="r_rendimento" placeholder="Rendimento (unidades)" class="w-full bg-slate-50 border p-3 rounded-xl text-sm" required>
                     <div class="p-4 bg-slate-50 rounded-xl border">
-                        <h3 class="text-sm font-bold mb-2 text-slate-700">Composição (Insumos)</h3>
+                        <h3 class="text-sm font-bold mb-2">Composição</h3>
                         <div class="flex gap-2 mb-2">
                             <select id="r_insumo_select" class="flex-1 bg-white border p-2 rounded-lg text-sm"></select>
                             <input type="number" step="0.01" id="r_insumo_qtd" placeholder="Qtd" class="w-20 bg-white border p-2 rounded-lg text-sm">
-                            <button type="button" onclick="adicionarInsumoNaReceita()" class="bg-slate-800 text-white px-3 rounded-lg font-bold hover:bg-slate-700">+</button>
+                            <button type="button" onclick="adicionarInsumoNaReceita()" class="bg-slate-800 text-white px-3 rounded-lg">+</button>
                         </div>
                         <ul id="listaInsumosReceitaAtual" class="text-xs text-slate-600 space-y-1"></ul>
                     </div>
-                    
-                    <button type="submit" class="w-full bg-blue-500 text-white font-bold py-3 rounded-xl shadow-md hover:bg-blue-600 transition-all">SALVAR FICHA TÉCNICA</button>
+                    <button type="submit" class="w-full bg-blue-500 text-white font-bold py-3 rounded-xl">SALVAR RECEITA</button>
                 </form>
             </div>
             <div class="lg:col-span-2 bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
@@ -87,9 +85,8 @@
                         <thead>
                             <tr class="text-slate-400 uppercase text-[10px] border-b">
                                 <th class="pb-2">Receita</th>
-                                <th class="pb-2 text-right">Rendimento</th>
                                 <th class="pb-2 text-right">Custo Total</th>
-                                <th class="pb-2 text-right">Custo Unidade</th>
+                                <th class="pb-2 text-right">Custo Un.</th>
                                 <th class="pb-2 text-center">Ações</th>
                             </tr>
                         </thead>
@@ -101,31 +98,29 @@
 
         <div id="aba-fechamento" class="aba grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="lg:col-span-1 bg-white rounded-3xl p-6 shadow-sm border border-emerald-100 h-fit">
-                <h2 id="formTitleFechamento" class="font-bold text-lg mb-4 text-emerald-700">🧾 Lançar Faturamento</h2>
+                <h2 id="formTitleFechamento" class="font-bold text-lg mb-4 text-emerald-700">💰 Fechamento de Caixa</h2>
                 <form id="formFechamento" class="space-y-4">
                     <input type="hidden" id="f_editId" value="">
                     <input type="number" step="0.01" id="f_fundo" placeholder="Fundo de Troco (R$)" class="w-full bg-slate-50 border p-3 rounded-xl text-sm" required>
-                    <input type="number" step="0.01" id="f_sangria" placeholder="Despesas/Sangria (R$)" class="w-full bg-slate-50 border p-3 rounded-xl text-sm" required>
+                    <input type="number" step="0.01" id="f_sangria" placeholder="Sangria (R$)" class="w-full bg-slate-50 border p-3 rounded-xl text-sm" required>
                     <div class="grid grid-cols-2 gap-2">
                         <input type="number" step="0.01" id="f_din" placeholder="Dinheiro" class="bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-sm font-bold" required>
                         <input type="number" step="0.01" id="f_pix" placeholder="PIX" class="bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-sm font-bold" required>
                     </div>
-                    <input type="number" step="0.01" id="f_card" placeholder="Cartão (Maquininha)" class="w-full bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-sm font-bold" required>
-                    
-                    <button type="submit" id="btnSubmitFechamento" class="w-full bg-emerald-500 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-emerald-600 transition-all">SALVAR FECHAMENTO</button>
-                    <button type="button" id="btnCancelFechamento" onclick="cancelarEdicaoFechamento()" class="hidden w-full bg-slate-100 text-slate-500 font-bold py-2 rounded-xl text-xs">CANCELAR EDIÇÃO</button>
+                    <input type="number" step="0.01" id="f_card" placeholder="Cartão" class="w-full bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-sm font-bold" required>
+                    <button type="submit" id="btnSubmitFechamento" class="w-full bg-emerald-500 text-white font-bold py-4 rounded-xl shadow-lg">SALVAR CAIXA</button>
+                    <button type="button" id="btnCancelFechamento" onclick="cancelarEdicaoFechamento()" class="hidden w-full bg-slate-100 text-slate-500 py-2 rounded-xl text-xs mt-2">CANCELAR EDIÇÃO</button>
                 </form>
             </div>
-
             <div class="lg:col-span-2 bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
-                <h2 class="font-bold text-lg mb-4">📊 Histórico de Fechamentos</h2>
+                <h2 class="font-bold text-lg mb-4">📊 Histórico Financeiro</h2>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm">
                         <thead>
                             <tr class="text-slate-400 uppercase text-[10px] border-b">
                                 <th class="pb-2">Data</th>
-                                <th class="pb-2 text-right">Total Faturado</th>
-                                <th class="pb-2 text-right">Gaveta Esperada</th>
+                                <th class="pb-2 text-right">Faturado</th>
+                                <th class="pb-2 text-right">Gaveta</th>
                                 <th class="pb-2 text-center">Ações</th>
                             </tr>
                         </thead>
@@ -141,38 +136,28 @@
         let insumosReceitaTemp = [];
         let fechamentosGeral = [];
 
-        // NAVEGAÇÃO ENTRE ABAS
         function mudarAba(abaId, botao) {
             document.querySelectorAll('.aba').forEach(el => el.classList.remove('ativa'));
-            document.querySelectorAll('.btn-aba').forEach(el => {
-                el.classList.remove('tab-active', 'text-dc2626');
-                el.classList.add('text-slate-400');
-            });
-            
+            document.querySelectorAll('.btn-aba').forEach(el => el.classList.remove('tab-active'));
             document.getElementById('aba-' + abaId).classList.add('ativa');
             botao.classList.add('tab-active');
-            botao.classList.remove('text-slate-400');
-
             if(abaId === 'insumos') carregarInsumos();
             if(abaId === 'receitas') carregarReceitas();
             if(abaId === 'fechamento') carregarFechamentos();
         }
 
-        // --- LÓGICA INSUMOS ---
         async function carregarInsumos() {
             const res = await fetch('/api/insumos');
             insumosGlobais = await res.json();
-            
             const lista = document.getElementById('listaInsumos');
             lista.innerHTML = insumosGlobais.map(i => `
                 <tr class="border-b hover:bg-slate-50">
-                    <td class="py-3 font-bold text-slate-700">${i.nome} <span class="text-xs font-normal text-slate-400">(${i.quantidade}${i.unidade})</span></td>
-                    <td class="text-right text-slate-600">R$ ${parseFloat(i.preco).toFixed(2)}</td>
-                    <td class="text-right font-black text-red-500">R$ ${parseFloat(i.custo_unitario).toFixed(4)} <span class="text-[10px]">/${i.unidade}</span></td>
-                    <td class="text-center"><button onclick="excluirInsumo(${i.id})" class="text-red-400 hover:text-red-600">🗑️</button></td>
+                    <td class="py-3 font-bold">${i.nome}</td>
+                    <td class="text-right">R$ ${parseFloat(i.preco).toFixed(2)}</td>
+                    <td class="text-right font-black text-red-500">R$ ${parseFloat(i.custo_unitario).toFixed(4)}</td>
+                    <td class="text-center"><button onclick="excluirInsumo(${i.id})" class="text-red-400">🗑️</button></td>
                 </tr>
             `).join('');
-            
             atualizarSelectInsumos();
         }
 
@@ -184,111 +169,77 @@
                 quantidade: document.getElementById('i_qtd').value,
                 unidade: document.getElementById('i_unidade').value
             };
-            await fetch('/api/insumos', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
-            document.getElementById('formInsumo').reset();
-            carregarInsumos();
+            const res = await fetch('/api/insumos', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+            if(res.ok) { document.getElementById('formInsumo').reset(); carregarInsumos(); }
+            else { alert("Erro ao salvar no banco!"); }
         };
 
         async function excluirInsumo(id) {
-            if(confirm("Excluir insumo?")) {
-                await fetch(`/api/insumos/${id}`, { method: 'DELETE' });
-                carregarInsumos();
-            }
+            if(confirm("Excluir?")) { await fetch(`/api/insumos/${id}`, { method: 'DELETE' }); carregarInsumos(); }
         }
 
-        // --- LÓGICA RECEITAS ---
         function atualizarSelectInsumos() {
             const select = document.getElementById('r_insumo_select');
-            if(!select) return;
-            select.innerHTML = '<option value="">Selecione...</option>' + 
-                insumosGlobais.map(i => `<option value="${i.id}">${i.nome} (${i.unidade})</option>`).join('');
+            if(select) select.innerHTML = '<option value="">Selecione...</option>' + insumosGlobais.map(i => `<option value="${i.id}">${i.nome}</option>`).join('');
         }
 
         function adicionarInsumoNaReceita() {
             const select = document.getElementById('r_insumo_select');
             const qtd = document.getElementById('r_insumo_qtd').value;
             if(!select.value || !qtd) return;
-            
             const insumo = insumosGlobais.find(i => i.id == select.value);
             const custo = parseFloat(insumo.custo_unitario) * parseFloat(qtd);
-            
-            insumosReceitaTemp.push({ id_insumo: insumo.id, nome: insumo.nome, quantidade: parseFloat(qtd), unidade: insumo.unidade, custo: custo });
+            insumosReceitaTemp.push({ id_insumo: insumo.id, nome: insumo.nome, quantidade: parseFloat(qtd), custo: custo });
             atualizarListaInsumosReceita();
-            document.getElementById('r_insumo_qtd').value = '';
         }
 
         function atualizarListaInsumosReceita() {
             const ul = document.getElementById('listaInsumosReceitaAtual');
-            ul.innerHTML = insumosReceitaTemp.map((item, index) => `
-                <li class="flex justify-between items-center border-b pb-1">
-                    <span>${item.quantidade}${item.unidade} - ${item.nome}</span>
-                    <div class="flex items-center gap-2">
-                        <span class="font-bold text-red-500">R$ ${item.custo.toFixed(2)}</span>
-                        <button type="button" onclick="removerInsumoReceita(${index})" class="text-red-400 font-bold">X</button>
-                    </div>
-                </li>
-            `).join('');
-        }
-
-        function removerInsumoReceita(index) {
-            insumosReceitaTemp.splice(index, 1);
-            atualizarListaInsumosReceita();
+            ul.innerHTML = insumosReceitaTemp.map((item, index) => `<li class="flex justify-between"><span>${item.nome}</span> <b>R$ ${item.custo.toFixed(2)}</b></li>`).join('');
         }
 
         document.getElementById('formReceita').onsubmit = async function(e) {
             e.preventDefault();
             const custo_total = insumosReceitaTemp.reduce((acc, curr) => acc + curr.custo, 0);
             const rendimento = parseFloat(document.getElementById('r_rendimento').value);
-            const custo_unidade = custo_total / rendimento;
-            
             const payload = {
                 nome: document.getElementById('r_nome').value,
                 rendimento: rendimento,
                 custo_total: custo_total,
-                custo_unidade: custo_unidade,
+                custo_unidade: custo_total / rendimento,
                 ingredientes: JSON.stringify(insumosReceitaTemp)
             };
-            
-            await fetch('/api/receitas', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
-            document.getElementById('formReceita').reset();
-            insumosReceitaTemp = [];
-            atualizarListaInsumosReceita();
-            carregarReceitas();
+            const res = await fetch('/api/receitas', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+            if(res.ok) { document.getElementById('formReceita').reset(); insumosReceitaTemp = []; carregarReceitas(); }
         };
 
         async function carregarReceitas() {
             const res = await fetch('/api/receitas');
             const dados = await res.json();
             const lista = document.getElementById('listaReceitas');
-            if(!lista) return;
             lista.innerHTML = dados.map(r => `
-                <tr class="border-b hover:bg-slate-50">
-                    <td class="py-3 font-bold text-slate-700">${r.nome}</td>
-                    <td class="text-right text-slate-600">${r.rendimento} un</td>
-                    <td class="text-right font-bold text-red-500">R$ ${parseFloat(r.custo_total).toFixed(2)}</td>
-                    <td class="text-right font-black text-emerald-600">R$ ${parseFloat(r.custo_unidade).toFixed(4)}</td>
-                    <td class="text-center"><button onclick="excluirReceita(${r.id})" class="text-red-400 hover:text-red-600">🗑️</button></td>
+                <tr class="border-b">
+                    <td class="py-3 font-bold">${r.nome}</td>
+                    <td class="text-right">R$ ${parseFloat(r.custo_total).toFixed(2)}</td>
+                    <td class="text-right font-black text-emerald-600">R$ ${parseFloat(r.custo_unidade).toFixed(2)}</td>
+                    <td class="text-center"><button onclick="excluirReceita(${r.id})" class="text-red-400">🗑️</button></td>
                 </tr>
             `).join('');
         }
 
         async function excluirReceita(id) {
-            if(confirm("Excluir esta receita?")) {
-                await fetch(`/api/receitas/${id}`, { method: 'DELETE' });
-                carregarReceitas();
-            }
+            if(confirm("Excluir?")) { await fetch(`/api/receitas/${id}`, { method: 'DELETE' }); carregarReceitas(); }
         }
 
-        // --- LÓGICA FECHAMENTOS ---
         async function carregarFechamentos() {
             const res = await fetch('/api/fechamentos');
             fechamentosGeral = await res.json();
             const lista = document.getElementById('listaFechamentos');
             lista.innerHTML = fechamentosGeral.map(f => `
-                <tr class="border-b hover:bg-slate-50">
-                    <td class="py-4 font-bold text-slate-700">${f.data ? f.data.split('T')[0] : ''}</td>
+                <tr class="border-b">
+                    <td class="py-4 font-bold">${f.data ? f.data.split('T')[0] : ''}</td>
                     <td class="text-right font-black text-emerald-600">R$ ${parseFloat(f.total_global).toFixed(2)}</td>
-                    <td class="text-right text-slate-500 font-semibold">R$ ${parseFloat(f.esperado_gaveta).toFixed(2)}</td>
+                    <td class="text-right font-semibold">R$ ${parseFloat(f.esperado_gaveta).toFixed(2)}</td>
                     <td class="text-center">
                         <button onclick="editarFechamento(${f.id})" class="text-blue-500 mr-2">✏️</button>
                         <button onclick="excluirFechamento(${f.id})" class="text-red-500">🗑️</button>
@@ -307,12 +258,12 @@
                 caixa_cartao: document.getElementById('f_card').value
             };
             const id = document.getElementById('f_editId').value;
-            const url = id ? `/api/fechamentos/${id}` : '/api/fechamentos';
-            const method = id ? 'PUT' : 'POST';
-
-            await fetch(url, { method, headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
-            cancelarEdicaoFechamento();
-            carregarFechamentos();
+            const res = await fetch(id ? `/api/fechamentos/${id}` : '/api/fechamentos', { 
+                method: id ? 'PUT' : 'POST', 
+                headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify(payload) 
+            });
+            if(res.ok) { cancelarEdicaoFechamento(); carregarFechamentos(); }
         };
 
         function editarFechamento(id) {
@@ -323,29 +274,21 @@
             document.getElementById('f_din').value = f.caixa_dinheiro;
             document.getElementById('f_pix').value = f.caixa_pix;
             document.getElementById('f_card').value = f.caixa_cartao;
-            document.getElementById('formTitleFechamento').innerText = "✏️ Editar Lançamento";
-            document.getElementById('btnSubmitFechamento').innerText = "ATUALIZAR DADOS";
-            document.getElementById('btnSubmitFechamento').classList.replace('bg-emerald-500', 'bg-blue-500');
+            document.getElementById('btnSubmitFechamento').innerText = "ATUALIZAR";
             document.getElementById('btnCancelFechamento').classList.remove('hidden');
         }
 
         function cancelarEdicaoFechamento() {
             document.getElementById('formFechamento').reset();
             document.getElementById('f_editId').value = "";
-            document.getElementById('formTitleFechamento').innerText = "🧾 Lançar Faturamento";
-            document.getElementById('btnSubmitFechamento').innerText = "SALVAR FECHAMENTO";
-            document.getElementById('btnSubmitFechamento').classList.replace('bg-blue-500', 'bg-emerald-500');
+            document.getElementById('btnSubmitFechamento').innerText = "SALVAR CAIXA";
             document.getElementById('btnCancelFechamento').classList.add('hidden');
         }
 
         async function excluirFechamento(id) {
-            if(confirm("Excluir este relatório financeiro?")) {
-                await fetch(`/api/fechamentos/${id}`, { method: 'DELETE' });
-                carregarFechamentos();
-            }
+            if(confirm("Excluir?")) { await fetch(`/api/fechamentos/${id}`, { method: 'DELETE' }); carregarFechamentos(); }
         }
 
-        // CARREGAMENTO INICIAL
         window.onload = carregarInsumos;
     </script>
 </body>
