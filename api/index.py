@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 from supabase import create_client, Client
+from datetime import datetime, timedelta
 import os
 
 app = Flask(__name__)
@@ -105,6 +106,13 @@ def handle_fechamentos():
         
         elif request.method == 'POST':
             data = request.json
+            
+            # --- CORREÇÃO: Forçando a Data/Hora pelo Python (Fuso do Brasil) ---
+            # Pegamos o horário do servidor e subtraímos 3 horas (Horário de Brasília)
+            agora_br = datetime.utcnow() - timedelta(hours=3)
+            data['data'] = agora_br.isoformat()
+            # -------------------------------------------------------------------
+            
             # Cálculos financeiros
             fundo = float(data.get('fundo_caixa', 0))
             sangria = float(data.get('despesas_dia', 0))
