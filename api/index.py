@@ -57,14 +57,26 @@ def handle_insumos():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/api/insumos/<int:id>', methods=['DELETE'])
-def delete_insumo(id):
+@app.route('/api/insumos/<int:id>', methods=['PUT', 'DELETE'])
+def gerenciar_insumo(id):
     token = get_token()
     if not token: return jsonify({"error": "Não autorizado"}), 401
     
     sb = get_supabase_client(token)
-    sb.table('insumos').delete().eq('id', id).execute()
-    return jsonify({"success": True})
+    
+    if request.method == 'PUT':
+        data = request.json
+        # Refaz o cálculo de custo por grama caso o preço ou peso sejam editados
+        preco = float(data.get('preco', 0))
+        qtd = float(data.get('quantidade', 0))
+        data['custo_unitario'] = preco / qtd if qtd > 0 else 0
+        
+        response = sb.table('insumos').update(data).eq('id', id).execute()
+        return jsonify(response.data)
+        
+    elif request.method == 'DELETE':
+        sb.table('insumos').delete().eq('id', id).execute()
+        return jsonify({"success": True})
 
 # --- API RECEITAS ---
 @app.route('/api/receitas', methods=['GET', 'POST'])
