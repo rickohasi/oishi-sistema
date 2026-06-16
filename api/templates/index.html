@@ -153,9 +153,19 @@
                 <div class="bg-white rounded-3xl p-5 md:p-6 shadow-sm border border-amber-100 lg:sticky lg:top-8">
                     <h2 class="font-bold text-lg mb-4 flex items-center gap-2"><span class="text-amber-500">🥣</span> Nova Ficha Técnica</h2>
                     <form id="formReceita" class="space-y-4">
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Nome do Lote / Produto</label>
-                            <input type="text" id="recNome" required placeholder="Ex: Massa Salgado 35g" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="col-span-2 md:col-span-1">
+                                <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Nome do Lote / Produto</label>
+                                <input type="text" id="recNome" required placeholder="Ex: Massa Frita" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400">
+                            </div>
+                            <div class="col-span-2 md:col-span-1">
+                                <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Categoria</label>
+                                <select id="recCategoria" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-amber-400">
+                                    <option value="Massa Base">🥣 Massa Base</option>
+                                    <option value="Recheio">🍗 Recheio</option>
+                                    <option value="Produto Final">🥟 Produto Final</option>
+                                </select>
+                            </div>
                         </div>
                         <div>
                             <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Rendimento Final (Unidades)</label>
@@ -442,6 +452,7 @@
 
             const dados = { 
                 nome: document.getElementById('recNome').value, 
+                categoria: document.getElementById('recCategoria').value,
                 rendimento: rendimento,
                 custo_total: custo_total,
                 custo_unitario: custo_unitario, 
@@ -481,6 +492,9 @@
                     <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 flex flex-col h-full hover:border-amber-200 transition-colors">
                         <div class="flex justify-between items-start mb-4">
                             <div class="overflow-hidden">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-[9px] font-black uppercase tracking-widest text-slate-500 bg-slate-100 px-2 py-1 rounded-md">${rec.categoria || 'Massa Base'}</span>
+                                </div>
                                 <h3 class="text-lg font-black text-slate-800 truncate">${rec.nome}</h3>
                                 <p class="text-[10px] font-bold text-amber-500 uppercase tracking-widest mt-1 bg-amber-50 inline-block px-2 py-0.5 rounded">Rendeu: ${rec.rendimento} un</p>
                             </div>
